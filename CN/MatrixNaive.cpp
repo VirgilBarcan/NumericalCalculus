@@ -61,8 +61,15 @@ double MatrixNaive::getElementAt(int line, int column)
 
 Matrix *MatrixNaive::transpose()
 {
-	//TODO: Add implementation
-	return nullptr;
+	MatrixNaive *T = new MatrixNaive(noOfColumns, noOfLines);
+
+	for (int line = 0; line < noOfLines; ++line) {
+		for (int column = 0; column < noOfColumns; ++column) {	
+			T->addElementAt(column, line, this->getElementAt(line, column));
+		}
+	}
+
+	return T;
 }
 
 std::string MatrixNaive::toString()

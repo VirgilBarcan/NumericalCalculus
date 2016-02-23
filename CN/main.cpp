@@ -20,6 +20,10 @@ void testNaiveMatrix() {
 	}
 
 	printf("The matrix is:\n%s\n", naiveMatrix->toString().c_str());
+
+	MatrixNaive *transpose = reinterpret_cast<MatrixNaive*>(naiveMatrix->transpose());
+
+	printf("The transpose is\n%s\n", transpose->toString().c_str());
 }
 
 int main() {
