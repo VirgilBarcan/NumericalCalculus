@@ -12,6 +12,13 @@ public:
 	double getElementAt(int line, int column);
 
 	Matrix *transpose();
+	Matrix *transpose(Matrix *matrix);
+
+	Matrix *add(Matrix *matrix);
+	Matrix *add(Matrix *matrix1, Matrix *matrix2);
+
+	Matrix *multiply(Matrix *matrix);
+	Matrix *multiply(Matrix *matrix1, Matrix *matrix2);
 
 	std::string toString();
 
@@ -20,6 +27,5 @@ private:
 
 	void instantiateMatrix();
 	void deinstantiateMatrix();
-	bool checkBounds(int line, int column);
 };
 

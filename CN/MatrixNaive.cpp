@@ -30,14 +30,6 @@ void MatrixNaive::deinstantiateMatrix()
 	delete[] matrix;
 }
 
-bool MatrixNaive::checkBounds(int line, int column)
-{
-	if ((line >= 0 && line < noOfLines) &&
-		(column >= 0 && column < noOfColumns))
-		return true;
-	return false;
-}
-
 void MatrixNaive::addElementAt(int line, int column, double value)
 {
 	if (checkBounds(line, column)) {
@@ -61,15 +53,52 @@ double MatrixNaive::getElementAt(int line, int column)
 
 Matrix *MatrixNaive::transpose()
 {
-	MatrixNaive *T = new MatrixNaive(noOfColumns, noOfLines);
+	return transpose(this);
+}
+
+Matrix *MatrixNaive::transpose(Matrix *matrix)
+{
+	MatrixNaive *T = new MatrixNaive(matrix->getNoOfColumns(), matrix->getNoOfLines());
 
 	for (int line = 0; line < noOfLines; ++line) {
-		for (int column = 0; column < noOfColumns; ++column) {	
-			T->addElementAt(column, line, this->getElementAt(line, column));
+		for (int column = 0; column < noOfColumns; ++column) {
+			T->addElementAt(column, line, matrix->getElementAt(line, column));
 		}
 	}
 
 	return T;
+}
+
+Matrix *MatrixNaive::add(Matrix *matrix)
+{
+	return add(this, matrix);
+}
+
+Matrix *MatrixNaive::add(Matrix *matrix1, Matrix *matrix2)
+{
+	if (checkEqualSizes(matrix1, matrix2)) {
+		MatrixNaive *sum = new MatrixNaive(matrix1->getNoOfLines(), matrix1->getNoOfLines());
+
+		for (int line = 0; line < matrix1->getNoOfLines(); ++line) {
+			for (int column = 0; column < matrix1->getNoOfColumns(); ++column) {
+				sum->addElementAt(line, column, matrix1->getElementAt(line, column) + matrix2->getElementAt(line, column));
+			}
+		}
+
+		return sum;
+	}
+	return nullptr;
+}
+
+Matrix *MatrixNaive::multiply(Matrix *matrix)
+{
+	return multiply(this, matrix);
+}
+
+Matrix *MatrixNaive::multiply(Matrix *matrix1, Matrix *matrix2)
+{
+	//TODO: Implement function
+	return nullptr;
 }
 
 std::string MatrixNaive::toString()
