@@ -187,6 +187,25 @@ public:
 	virtual Matrix *multiply(Matrix *matrix1, Matrix *matrix2) = 0;
 
 	/*
+	The QR decomposition algorithm applied for the current matrix (only for square matrices)
+	Q is an orthogonal matrix (transpose(Q) * Q = Q * transpose(Q) = In)
+	R is a superior triangular matrix
+	@param Q - the Q matrix, output parameter
+	@param R - the R matrix, output paramater
+	*/
+	virtual void qrDecomposition(Matrix *Q, Matrix *R) = 0;
+
+	/*
+	The QR decomposition algorithm (only for square matrices)
+	Q is an orthogonal matrix (transpose(Q) * Q = Q * transpose(Q) = In)
+	R is a superior triangular matrix
+	@param A - the input matrix
+	@param Q - the Q matrix, output parameter
+	@param R - the R matrix, output paramater
+	*/
+	virtual void qrDecomposition(Matrix *A, Matrix *Q, Matrix *R) = 0;
+
+	/*
 	Get the string version of the matrix
 	This function will be implemented in the derivated classes
 	Needed to print the matrix

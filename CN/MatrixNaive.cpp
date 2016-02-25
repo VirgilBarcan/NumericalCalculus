@@ -155,6 +155,16 @@ Matrix *MatrixNaive::multiply(Matrix *matrix1, Matrix *matrix2)
 	return nullptr;
 }
 
+void MatrixNaive::qrDecomposition(Matrix *Q, Matrix *R)
+{
+	qrDecomposition(this, Q, R);
+}
+
+void MatrixNaive::qrDecomposition(Matrix *A, Matrix *Q, Matrix *R)
+{
+	//TODO: Implement QR decomposition
+}
+
 std::string MatrixNaive::toString()
 {
 	std::string stringVersion;
