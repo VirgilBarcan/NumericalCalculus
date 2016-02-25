@@ -97,7 +97,25 @@ Matrix *MatrixNaive::multiply(Matrix *matrix)
 
 Matrix *MatrixNaive::multiply(Matrix *matrix1, Matrix *matrix2)
 {
-	//TODO: Implement function
+	if (checkMultipliable(matrix1, matrix2)) {
+        MatrixNaive *productMatrix = new MatrixNaive(matrix1->getNoOfLines(), matrix2->getNoOfColumns());
+        
+		int line1, column1, column2;
+		double sum = 0;
+
+        for (line1 = 0; line1 < matrix1->getNoOfLines(); ++line1) {
+            for (column2 = 0; column2 < matrix2->getNoOfColumns(); ++column2) {
+                for (column1 = 0; column1 < matrix1->getNoOfColumns(); ++column1) {
+					double product = matrix1->getElementAt(line1, column1) * matrix2->getElementAt(column1, column2);
+					sum += product;
+                }
+				productMatrix->addElementAt(line1, column2, sum);
+				sum = 0.0;
+            }
+        }
+
+		return productMatrix;
+    }
 	return nullptr;
 }
 
