@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <random>
 
 class Matrix
 {
@@ -48,12 +49,26 @@ public:
 	virtual double getElementAt(int line, int column) = 0;
 
 	/*
+	Get the matrix from the file given as parameter
+	@param filePath - the path to the file that contains the matrix
+	*/
+	virtual void getFromFile(std::string filePath) = 0;
+
+	/*
+	Generate the values of the matrix
+	The values are generated in the interval [min, max]
+	@param min - the minimum value generated
+	@param max - the maximum value generated
+	*/
+	virtual void generateRandomMatrixValues(double min, double max) = 0;
+
+	/*
 	Check if the wanted element line and column are within the bounds of the matrix
 	@param line - the line to check the size for
 	@param column - the column to check the size for
 	@return - true if the the line and column are in the bounds of the matrix, false otherwise
 	*/
-	virtual bool checkBounds(int line, int column) {
+	bool checkBounds(int line, int column) {
 		if ((line >= 0 && line < noOfLines) &&
 			(column >= 0 && column < noOfColumns))
 			return true;
@@ -66,7 +81,7 @@ public:
 	@param matrix2 - the second matrix
 	@return - true if the two matrices have equal size, false otherwise
 	*/
-	virtual bool checkEqualSizes(Matrix *matrix1, Matrix *matrix2) {
+	bool checkEqualSizes(Matrix *matrix1, Matrix *matrix2) {
 		if ((matrix1->getNoOfLines() == matrix2->getNoOfLines()) &&
 			(matrix1->getNoOfColumns() == matrix2->getNoOfColumns()))
 			return true;
@@ -80,7 +95,7 @@ public:
 	@param matrix2 - the second matrix
 	@return - true if the two matrices are multipliable, false otherwise
 	*/
-	virtual bool checkMultipliable(Matrix *matrix1, Matrix *matrix2) {
+	bool checkMultipliable(Matrix *matrix1, Matrix *matrix2) {
 		if ((matrix1->getNoOfColumns() == matrix2->getNoOfLines()))
 			return true;
 		return false;

@@ -1,5 +1,9 @@
 #include "MatrixNaive.h"
 
+MatrixNaive::MatrixNaive()
+{
+}
+
 MatrixNaive::MatrixNaive(int noOfLines, int noOfColumns)
 {
 	this->noOfLines = noOfLines;
@@ -19,6 +23,11 @@ void MatrixNaive::instantiateMatrix()
 	for (int i = 0; i < noOfLines; ++i) {
 		this->matrix[i] = new double[noOfColumns];
 	}
+
+	//initialize values
+	for (int line = 0; line < noOfLines; ++line)
+		for (int column = 0; column < noOfColumns; ++column)
+			this->matrix[line][column] = 0;
 }
 
 void MatrixNaive::deinstantiateMatrix()
@@ -48,6 +57,33 @@ double MatrixNaive::getElementAt(int line, int column)
 	else {
 		//maybe throw an exception
 		return 0.0;
+	}
+}
+
+void MatrixNaive::getFromFile(std::string filePath)
+{
+	//TODO: read from the file the matrix size and values
+
+	//read size from the first 2 lines
+
+	//instantiate the matrix
+	//instantiateMatrix();
+
+	//read data from the file and build the matrix
+}
+
+void MatrixNaive::generateRandomMatrixValues(double min, double max)
+{
+	std::uniform_real_distribution<double> uniform_distribution(min, max);
+	std::default_random_engine random_engine;
+
+	for (int line = 0; line < this->getNoOfLines(); ++line) {
+		for (int column = 0; column < this->getNoOfColumns(); ++column) {
+			//generate random value in the interval [min, max]
+			double value = uniform_distribution(random_engine);
+
+			this->addElementAt(line, column, value);
+		}
 	}
 }
 
