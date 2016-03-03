@@ -15,6 +15,8 @@ public:
 	void getFromFile(std::string filePath);
 	void generateRandomMatrixValues(double min, double max);
 
+	static Matrix *identityMatrix(int n);
+
 	Matrix *transpose();
 	Matrix *transpose(Matrix *matrix);
 
@@ -24,8 +26,8 @@ public:
 	Matrix *multiply(Matrix *matrix);
 	Matrix *multiply(Matrix *matrix1, Matrix *matrix2);
 
-	void qrDecomposition(Matrix *Q, Matrix *R);
-	void qrDecomposition(Matrix *A, Matrix *Q, Matrix *R);
+	void qrDecomposition(Matrix **Q, Matrix **R);
+	void qrDecomposition(Matrix *A, Matrix **Q, Matrix **R);
 
 	std::string toString();
 

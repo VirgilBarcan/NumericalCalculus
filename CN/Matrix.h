@@ -101,6 +101,14 @@ public:
 		return false;
 	}
 
+	void setEpsilon(double epsilon) {
+		this->epsilon = epsilon;
+	}
+
+	double getEpsilon() {
+		return this->epsilon;
+	}
+
 	/*
 	Get the transpose of the matrix
 	The transpose is the matrix where the element A[i, j] is placed in A[j, i]:
@@ -193,7 +201,7 @@ public:
 	@param Q - the Q matrix, output parameter
 	@param R - the R matrix, output paramater
 	*/
-	virtual void qrDecomposition(Matrix *Q, Matrix *R) = 0;
+	virtual void qrDecomposition(Matrix **Q, Matrix **R) = 0;
 
 	/*
 	The QR decomposition algorithm (only for square matrices)
@@ -203,7 +211,7 @@ public:
 	@param Q - the Q matrix, output parameter
 	@param R - the R matrix, output paramater
 	*/
-	virtual void qrDecomposition(Matrix *A, Matrix *Q, Matrix *R) = 0;
+	virtual void qrDecomposition(Matrix *A, Matrix **Q, Matrix **R) = 0;
 
 	/*
 	Get the string version of the matrix
@@ -215,5 +223,6 @@ public:
 protected:
 	int noOfLines;
 	int noOfColumns;
+	double epsilon;
 };
 

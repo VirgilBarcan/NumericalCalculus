@@ -71,11 +71,33 @@ void ex1() {
 	delete b;
 }
 
+void ex2() {
+	int n = 3;
+
+	MatrixNaive *A = new MatrixNaive(n, n);
+	MatrixNaive *Q = new MatrixNaive(n, n);
+	MatrixNaive *R = new MatrixNaive(n, n);
+
+	A->generateRandomMatrixValues(1, 10);
+
+	A->qrDecomposition(reinterpret_cast<Matrix**>(&Q), reinterpret_cast<Matrix**>(&R));
+
+	printf("A:\n%s\n", A->toString().c_str());
+	printf("Q:\n%s\n", Q->toString().c_str());
+	printf("R:\n%s\n", R->toString().c_str());
+
+	delete A;
+	delete Q;
+	delete R;
+}
+
 int main() {
 
 	//testNaiveMatrix();
 
 	ex1();
+
+	ex2();
 
 	return 0;
 }

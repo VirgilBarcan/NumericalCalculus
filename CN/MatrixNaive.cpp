@@ -87,6 +87,17 @@ void MatrixNaive::generateRandomMatrixValues(double min, double max)
 	}
 }
 
+Matrix* MatrixNaive::identityMatrix(int n) {
+	MatrixNaive *identity = new MatrixNaive(n, n);
+
+	for (int i = 0; i < n; ++i) {
+		identity->addElementAt(i, i, 1);
+	}
+
+	return identity;
+}
+
+
 Matrix *MatrixNaive::transpose()
 {
 	return transpose(this);
@@ -155,14 +166,52 @@ Matrix *MatrixNaive::multiply(Matrix *matrix1, Matrix *matrix2)
 	return nullptr;
 }
 
-void MatrixNaive::qrDecomposition(Matrix *Q, Matrix *R)
+void MatrixNaive::qrDecomposition(Matrix **Q, Matrix **R)
 {
 	qrDecomposition(this, Q, R);
 }
 
-void MatrixNaive::qrDecomposition(Matrix *A, Matrix *Q, Matrix *R)
+void MatrixNaive::qrDecomposition(Matrix *A, Matrix **Q, Matrix **R)
 {
 	//TODO: Implement QR decomposition
+	if (A->getNoOfLines() == A->getNoOfColumns()) { //the decomposition can be done
+		int n = A->getNoOfLines();
+		MatrixNaive *Q_tilda = reinterpret_cast<MatrixNaive*>(MatrixNaive::identityMatrix(n));
+		MatrixNaive *u = new MatrixNaive(1, n);
+
+		double sigma;
+		double k;
+		double beta;
+
+		//our matrix is 0 indexed
+		for (int r = 0; r < n - 1; ++r) {
+			//build Pr matrix, find beta and u vector
+
+			sigma = 0; //sum with i = r,..., n of a_ir^2
+			for (int i = r; i < n; ++i) {
+				sigma += pow(A->getElementAt(i, r), 2);
+			}
+
+			if (sigma <= getEpsilon())
+				break;
+
+			k = sqrt(sigma);
+
+			if (A->getElementAt(r, r) > 0)
+				k = -k;
+
+			beta = sigma - k * A->getElementAt(r, r);
+
+			u->addElementAt(1, r, (A->getElementAt(r, r) - k));
+			for (int i = r + 1; i < n; ++i) {
+				u->addElementAt(1, i, A->getElementAt(i, r));
+			}
+		}
+	}
+	else { //the decomposition can not be done
+		*Q = nullptr;
+		*R = nullptr;
+	}
 }
 
 std::string MatrixNaive::toString()
