@@ -26,8 +26,8 @@ public:
 	Matrix *multiply(Matrix *matrix);
 	Matrix *multiply(Matrix *matrix1, Matrix *matrix2);
 
-	void qrDecomposition(Matrix **Q, Matrix **R);
-	void qrDecomposition(Matrix *A, Matrix **Q, Matrix **R);
+	void qrDecomposition(Matrix *b, Matrix **Q, Matrix **R);
+	void qrDecomposition(Matrix *A, Matrix *b, Matrix **Q, Matrix **R);
 
 	std::string toString();
 

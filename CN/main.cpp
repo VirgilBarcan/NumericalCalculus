@@ -75,12 +75,17 @@ void ex2() {
 	int n = 3;
 
 	MatrixNaive *A = new MatrixNaive(n, n);
+	MatrixNaive *b = new MatrixNaive(1, n);
 	MatrixNaive *Q = new MatrixNaive(n, n);
 	MatrixNaive *R = new MatrixNaive(n, n);
 
-	A->generateRandomMatrixValues(1, 10);
+	A->addElementAt(0, 0, 12); A->addElementAt(0, 1, -51); A->addElementAt(0, 2, 4);
+	A->addElementAt(1, 0, 6); A->addElementAt(1, 1, 167); A->addElementAt(1, 2, -68);
+	A->addElementAt(2, 0, -4); A->addElementAt(2, 1, 24); A->addElementAt(2, 2, -41);
 
-	A->qrDecomposition(reinterpret_cast<Matrix**>(&Q), reinterpret_cast<Matrix**>(&R));
+	b->addElementAt(0, 0, 1); b->addElementAt(0, 1, 1); b->addElementAt(0, 2, 1);
+
+	A->qrDecomposition(b, reinterpret_cast<Matrix**>(&Q), reinterpret_cast<Matrix**>(&R));
 
 	printf("A:\n%s\n", A->toString().c_str());
 	printf("Q:\n%s\n", Q->toString().c_str());
@@ -95,7 +100,7 @@ int main() {
 
 	//testNaiveMatrix();
 
-	ex1();
+	//ex1();
 
 	ex2();
 

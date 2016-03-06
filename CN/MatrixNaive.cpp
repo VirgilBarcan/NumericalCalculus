@@ -166,12 +166,12 @@ Matrix *MatrixNaive::multiply(Matrix *matrix1, Matrix *matrix2)
 	return nullptr;
 }
 
-void MatrixNaive::qrDecomposition(Matrix **Q, Matrix **R)
+void MatrixNaive::qrDecomposition(Matrix *b, Matrix **Q, Matrix **R)
 {
-	qrDecomposition(this, Q, R);
+	qrDecomposition(this, b, Q, R);
 }
 
-void MatrixNaive::qrDecomposition(Matrix *A, Matrix **Q, Matrix **R)
+void MatrixNaive::qrDecomposition(Matrix *A, Matrix *b, Matrix **Q, Matrix **R)
 {
 	//TODO: Implement QR decomposition
 	if (A->getNoOfLines() == A->getNoOfColumns()) { //the decomposition can be done
@@ -180,8 +180,9 @@ void MatrixNaive::qrDecomposition(Matrix *A, Matrix **Q, Matrix **R)
 		MatrixNaive *u = new MatrixNaive(1, n);
 
 		double sigma;
-		double k;
 		double beta;
+		double gamma;
+		double k;
 
 		//our matrix is 0 indexed
 		for (int r = 0; r < n - 1; ++r) {
@@ -204,9 +205,53 @@ void MatrixNaive::qrDecomposition(Matrix *A, Matrix **Q, Matrix **R)
 
 			u->addElementAt(1, r, (A->getElementAt(r, r) - k));
 			for (int i = r + 1; i < n; ++i) {
-				u->addElementAt(1, i, A->getElementAt(i, r));
+				u->addElementAt(0, i, A->getElementAt(i, r));
+			}
+
+			//transform the j-th column, j = r+1, ..., n
+			for (int j = r + 1; j < n; ++j) {
+				gamma = 0;
+
+				for (int i = r; i < n; ++i) {
+					gamma += u->getElementAt(0, i) * A->getElementAt(i, j);
+				}
+				gamma /= beta;
+
+				for (int i = r; i < n; ++i) {
+					A->addElementAt(i, j, gamma * u->getElementAt(0, i));
+				}
+			}
+
+			//transform the r-th column of A
+			A->addElementAt(r, r, k);
+			for (int i = r + 1; i < n; ++i) {
+				A->addElementAt(i, r, 0);
+			}
+
+			gamma = 0;
+			for (int i = r; i < n; ++i) {
+				gamma = u->getElementAt(0, i) * b->getElementAt(0, i);
+			}
+			gamma /= beta;
+
+			for (int i = r; i < n; ++i) {
+				b->addElementAt(0, i, b->getElementAt(0, i) - gamma * u->getElementAt(0, i));
+			}
+
+			gamma = 0;
+			for (int j = 0; j < n; ++j) {
+				for (int i = r; i < n; ++i) {
+					gamma += u->getElementAt(0, i) * Q_tilda->getElementAt(i, j);
+				}
+				gamma /= beta;
+
+				for (int i = r; i < n; ++i) {
+					Q_tilda->addElementAt(i, j, Q_tilda->getElementAt(i, j) - gamma * u->getElementAt(0, i));
+				}
 			}
 		}
+
+		printf("Q_tilda = %s\n", Q_tilda->toString().c_str());
 	}
 	else { //the decomposition can not be done
 		*Q = nullptr;
