@@ -1,6 +1,7 @@
 # include <cstdio>
 # include <ctime>
 # include "MatrixNaive.h"
+# include "VectorialNorm.h"
 
 using namespace std;
 
@@ -118,6 +119,13 @@ void ex2_2() {
 	b->addElementAt(0, 0, 10); b->addElementAt(0, 1, 16); b->addElementAt(0, 2, 6);
 	printf("b:\n%s\n", b->toString().c_str());
 
+	printf("EuclideanNorm of b: %f\n", VectorialNorm::EuclideanNorm(b));
+	printf("ManhattanNorm of b: %f\n", VectorialNorm::ManhattanNorm(b));
+	printf("MaximumNorm of b: %f\n", VectorialNorm::MaximumNorm(b));
+	printf("pNorm(1) of b: %f\n", VectorialNorm::pNorm(b, 1));
+	printf("pNorm(2) of b: %f\n", VectorialNorm::pNorm(b, 2));
+	printf("pNorm(3) of b: %f\n\n", VectorialNorm::pNorm(b, 3));
+
 	A->qrDecomposition(b, reinterpret_cast<Matrix**>(&Q), reinterpret_cast<Matrix**>(&R));
 
 	printf("A:\n%s\n", A->toString().c_str());
@@ -136,9 +144,9 @@ int main() {
 
 	//ex1();
 
-	ex2();
+	//ex2();
 
-	//ex2_2();
+	ex2_2();
 
 	return 0;
 }

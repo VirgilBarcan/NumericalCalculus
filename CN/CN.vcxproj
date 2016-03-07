@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="MatrixNaive.h" />
+    <ClInclude Include="VectorialNorm.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
