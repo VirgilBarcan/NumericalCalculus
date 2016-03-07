@@ -29,6 +29,9 @@ public:
 	void qrDecomposition(Matrix *b, Matrix **Q, Matrix **R);
 	void qrDecomposition(Matrix *A, Matrix *b, Matrix **Q, Matrix **R);
 
+	Matrix *clone();
+	Matrix *clone(Matrix *M);
+
 	std::string toString();
 
 private:

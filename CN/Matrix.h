@@ -101,10 +101,18 @@ public:
 		return false;
 	}
 
+	/*
+	Set the value of epsilon, the precision of calculations
+	@param epsilon - the precision of calculations
+	*/
 	void setEpsilon(double epsilon) {
 		this->epsilon = epsilon;
 	}
 
+	/*
+	Get the value of epsilon, the precision of calculations
+	@return epsilon - the precision of calculations
+	*/
 	double getEpsilon() {
 		return this->epsilon;
 	}
@@ -214,6 +222,19 @@ public:
 	@param R - the R matrix, output paramater
 	*/
 	virtual void qrDecomposition(Matrix *A, Matrix *b, Matrix **Q, Matrix **R) = 0;
+
+	/*
+	Get the clone of the current matrix
+	@return the clone of the current matrix
+	*/
+	virtual Matrix* clone() = 0;
+
+	/*
+	Get the clone of the M matrix
+	@param M the matrix to be cloned
+	@return the clone of the M matrix
+	*/
+	virtual Matrix* clone(Matrix *M) = 0;
 
 	/*
 	Get the string version of the matrix

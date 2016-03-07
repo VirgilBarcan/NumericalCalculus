@@ -96,13 +96,43 @@ void ex2() {
 	delete R;
 }
 
+void ex2_2() {
+	int n = 3;
+
+	MatrixNaive *A = new MatrixNaive(n, n);
+	MatrixNaive *b = new MatrixNaive(1, n);
+	MatrixNaive *Q = new MatrixNaive(n, n);
+	MatrixNaive *R = new MatrixNaive(n, n);
+
+	A->addElementAt(0, 0, 1); A->addElementAt(0, 1, 3); A->addElementAt(0, 2, 1);
+	A->addElementAt(1, 0, 3); A->addElementAt(1, 1, 2); A->addElementAt(1, 2, 3);
+	A->addElementAt(2, 0, 2); A->addElementAt(2, 1, 5); A->addElementAt(2, 2, -2);
+	printf("A:\n%s\n", A->toString().c_str());
+
+	b->addElementAt(0, 0, 10); b->addElementAt(0, 1, 16); b->addElementAt(0, 2, 6);
+	printf("b:\n%s\n", b->toString().c_str());
+
+	A->qrDecomposition(b, reinterpret_cast<Matrix**>(&Q), reinterpret_cast<Matrix**>(&R));
+
+	printf("A:\n%s\n", A->toString().c_str());
+	printf("b:\n%s\n", b->toString().c_str());
+	printf("Q:\n%s\n", Q->toString().c_str());
+	printf("R:\n%s\n", R->toString().c_str());
+
+	delete A;
+	delete Q;
+	delete R;
+}
+
 int main() {
 
 	//testNaiveMatrix();
 
 	//ex1();
 
-	ex2();
+	//ex2();
+
+	ex2_2();
 
 	return 0;
 }

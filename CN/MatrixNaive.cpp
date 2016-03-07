@@ -173,9 +173,9 @@ void MatrixNaive::qrDecomposition(Matrix *b, Matrix **Q, Matrix **R)
 
 void MatrixNaive::qrDecomposition(Matrix *A, Matrix *b, Matrix **Q, Matrix **R)
 {
-	//TODO: Implement QR decomposition
-	if (A->getNoOfLines() == A->getNoOfColumns()) { //the decomposition can be done
-		int n = A->getNoOfLines();
+	Matrix *A_copy = A->clone();
+	if (A_copy->getNoOfLines() == A_copy->getNoOfColumns()) { //the decomposition can be done
+		int n = A_copy->getNoOfLines();
 		MatrixNaive *Q_tilda = reinterpret_cast<MatrixNaive*>(MatrixNaive::identityMatrix(n));
 		MatrixNaive *u = new MatrixNaive(1, n);
 
@@ -188,44 +188,44 @@ void MatrixNaive::qrDecomposition(Matrix *A, Matrix *b, Matrix **Q, Matrix **R)
 		for (int r = 0; r < n - 1; ++r) {
 			//build Pr matrix, find beta and u vector
 
+			//calculate sigma
 			sigma = 0; //sum with i = r,..., n of a_ir^2
 			for (int i = r; i < n; ++i) {
-				sigma += pow(A->getElementAt(i, r), 2);
+				sigma += pow(A_copy->getElementAt(i, r), 2);
 			}
 
 			if (sigma <= getEpsilon())
-				break;
+				break; //A is a singular matrix
 
 			k = sqrt(sigma);
 
-			if (A->getElementAt(r, r) > 0)
+			if (A_copy->getElementAt(r, r) > 0)
 				k = -k;
 
-			beta = sigma - k * A->getElementAt(r, r);
+			beta = sigma - k * A_copy->getElementAt(r, r);
 
-			u->addElementAt(1, r, (A->getElementAt(r, r) - k));
+			u->addElementAt(0, r, (A_copy->getElementAt(r, r) - k));
 			for (int i = r + 1; i < n; ++i) {
-				u->addElementAt(0, i, A->getElementAt(i, r));
+				u->addElementAt(0, i, A_copy->getElementAt(i, r));
 			}
 
 			//transform the j-th column, j = r+1, ..., n
 			for (int j = r + 1; j < n; ++j) {
 				gamma = 0;
-
 				for (int i = r; i < n; ++i) {
-					gamma += u->getElementAt(0, i) * A->getElementAt(i, j);
+					gamma += u->getElementAt(0, i) * A_copy->getElementAt(i, j);
 				}
 				gamma /= beta;
 
 				for (int i = r; i < n; ++i) {
-					A->addElementAt(i, j, gamma * u->getElementAt(0, i));
+					A_copy->addElementAt(i, j, A_copy->getElementAt(i, j) - gamma * u->getElementAt(0, i));
 				}
 			}
 
 			//transform the r-th column of A
-			A->addElementAt(r, r, k);
+			A_copy->addElementAt(r, r, k);
 			for (int i = r + 1; i < n; ++i) {
-				A->addElementAt(i, r, 0);
+				A_copy->addElementAt(i, r, 0);
 			}
 
 			gamma = 0;
@@ -238,8 +238,8 @@ void MatrixNaive::qrDecomposition(Matrix *A, Matrix *b, Matrix **Q, Matrix **R)
 				b->addElementAt(0, i, b->getElementAt(0, i) - gamma * u->getElementAt(0, i));
 			}
 
-			gamma = 0;
 			for (int j = 0; j < n; ++j) {
+				gamma = 0;
 				for (int i = r; i < n; ++i) {
 					gamma += u->getElementAt(0, i) * Q_tilda->getElementAt(i, j);
 				}
@@ -251,12 +251,35 @@ void MatrixNaive::qrDecomposition(Matrix *A, Matrix *b, Matrix **Q, Matrix **R)
 			}
 		}
 
-		printf("Q_tilda = %s\n", Q_tilda->toString().c_str());
+		//copy the results in Q and R
+		//Q_tilda is the transpose of Q
+		*Q = reinterpret_cast<MatrixNaive*>(Q_tilda->transpose());
+
+		//R can be found in A
+		*R = A_copy;
 	}
 	else { //the decomposition can not be done
 		*Q = nullptr;
 		*R = nullptr;
 	}
+}
+
+Matrix *MatrixNaive::clone()
+{
+	return clone(this);
+}
+
+Matrix *MatrixNaive::clone(Matrix *M)
+{
+	Matrix *C = new MatrixNaive(M->getNoOfLines(), M->getNoOfColumns());
+
+	for (int line = 0; line < M->getNoOfLines(); ++line) {
+		for (int column = 0; column < M->getNoOfColumns(); ++column) {
+			C->addElementAt(line, column, M->getElementAt(line, column));
+		}
+	}
+
+	return C;
 }
 
 std::string MatrixNaive::toString()
