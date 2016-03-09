@@ -2,10 +2,12 @@
 # include <ctime>
 # include "MatrixNaive.h"
 # include "VectorialNorm.h"
+# include <armadillo>
 
 using namespace std;
 
 void testNaiveMatrix() {
+
 	printf("Let's test the MatrixNaive\n");
 
 	int noOfLines = 3;
@@ -98,9 +100,32 @@ void ex2() {
 	double elapsed_time = double(end - begin);
 	printf("The QR decomposition took: %f seconds\n", elapsed_time / CLOCKS_PER_SEC);
 
+	arma::mat A2 = arma::randu<arma::mat>(n, n);
+	arma::mat Q2, R2;
+	
+	arma::qr(Q2, R2, A2);
+
+	//cout << "Q2.n_rows: " << Q2.n_rows << endl;
+	//cout << "Q2.n_cols: " << Q2.n_cols << endl;
+
+	//cout << "R2.n_rows: " << R2.n_rows << endl;
+	//cout << "R2.n_cols: " << R2.n_cols << endl;
+
+	//cout << "A2.n_rows: " << A2.n_rows << endl;
+	//cout << "A2.n_cols: " << A2.n_cols << endl;
+
+	A2.print("A2:");
+	Q2.print("Q2:");
+	R2.print("R2:");
+
+
 	delete A;
 	delete Q;
 	delete R;
+}
+
+void ex3() {
+
 }
 
 void ex2_2() {
@@ -144,9 +169,9 @@ int main() {
 
 	//ex1();
 
-	//ex2();
+	ex2();
 
-	ex2_2();
+	//ex2_2();
 
 	return 0;
 }
