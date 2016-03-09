@@ -37,7 +37,7 @@ public:
 	@param column - the column where the element should be placed
 	@param value - the value of the element
 	*/
-	virtual void addElementAt(int line, int column, double value) = 0;
+	virtual void setElementAt(int line, int column, double value) = 0;
 
 	/*
 	Get the value of an element in the matrix
@@ -155,6 +155,22 @@ public:
 	virtual Matrix *add(Matrix *matrix1, Matrix *matrix2) = 0;
 
 	/*
+	Subtract from the current matrix the matrix given as parameter
+	Matrix subtraction is performed element by element
+	@return - the difference of the matrices
+	*/
+	virtual Matrix *subtract(Matrix *matrix) = 0;
+
+	/*
+	Subtract the two matrices given as parameters
+	Matrix subtraction is performed element by element
+	@param matrix1 - the first matrix
+	@param matrix2 - the second matrix
+	@return - the difference of the matrices
+	*/
+	virtual Matrix *subtract(Matrix *matrix1, Matrix *matrix2) = 0;
+
+	/*
 	Multiply the current matrix with the matrix given as parameter
 	Matrix multiplication is performed like this:
 	Given A and B two matrice, A of size mxn and B of size pxq, where n = p, we define AxB to be:
@@ -222,6 +238,73 @@ public:
 	@param R - the R matrix, output paramater
 	*/
 	virtual void qrDecomposition(Matrix *A, Matrix *b, Matrix **Q, Matrix **R) = 0;
+
+	/*
+	The inverse substitution method for solving linear systems
+	Having the linear system: Ax = b where A is a superior triangular matrix (nonsingular matrix), we can do the following:
+	 find x_n = b_n / a_n,n
+	 find x_n-1 = (b_n-1 - a_n-1,n * x_n) / a_n-1,n-1
+	 ...
+	 find x_i = (b_i - a_i,i+1 * x_i+1 - ... - a_i,n * x_n) / a_i,i
+	 ...
+	 giving x_1 = (b_1 - a1,2 * x_2 - ... - a_1,n * x_n) / a_1,1
+
+	 The method can be summarized as: x_i = (b_i - sum of j=i+1 to n of a_i,j * x_j) / a_i,i, for i=n to 1
+
+	The matrix A is considered to be this
+
+	@param b - the vector of free terms
+	@return x - the solution of the system
+	*/
+	virtual Matrix* inverseSubstitutionMethod(Matrix *b) = 0;
+
+	/*
+	The inverse substitution method for solving linear systems
+	Having the linear system: Ax = b where A is a superior triangular matrix (nonsingular matrix), we can do the following:
+	 find x_n = b_n / a_n,n
+	 find x_n-1 = (b_n-1 - a_n-1,n * x_n) / a_n-1,n-1
+	 ...
+	 find x_i = (b_i - a_i,i+1 * x_i+1 - ... - a_i,n * x_n) / a_i,i
+	 ...
+	 giving x_1 = (b_1 - a1,2 * x_2 - ... - a_1,n * x_n) / a_1,1
+
+	 The method can be summarized as: x_i = (b_i - sum of j=i+1 to n of a_i,j * x_j) / a_i,i, for i=n to 1
+
+	@param A - the system matrix
+	@param b - the vector of free terms
+	@return x - the solution of the system
+	*/
+	virtual Matrix* inverseSubstitutionMethod(Matrix *A, Matrix *b) = 0;
+
+	/*
+	Check if this matrix is superior triangular
+	 A matrix is superior triangular if it has only 0's under the main diagonal
+	@return true if the matrix is superior triangular, false otherwise
+	*/
+	virtual bool isSuperiorTriangular() = 0;
+
+	/*
+	Check if the matrix is superior triangular
+	 A matrix is superior triangular if it has only 0's under the main diagonal
+	@param A - the matrix to check; A should be a square matrix
+	@return true if the matrix is superior triangular, false otherwise
+	*/
+	virtual bool isSuperiorTriangular(Matrix *A) = 0;
+
+	/*
+	Calculate the determinant of a superior triangular matrix
+	 The determinant of a superior triangular matrix is just the product of the elements on the main diagonal
+	@return the determinant of a superior triangular matrix
+	*/
+	virtual double superiorTriangularMatrixDeterminant() = 0;
+
+	/*
+	Calculate the determinant of a superior triangular matrix
+	 The determinant of a superior triangular matrix is just the product of the elements on the main diagonal
+	@param A - the matrix whose determinant we're calculating; A should be a square matrix
+	@return the determinant of a superior triangular matrix
+	*/
+	virtual double superiorTriangularMatrixDeterminant(Matrix *A) = 0;
 
 	/*
 	Get the clone of the current matrix

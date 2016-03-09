@@ -39,7 +39,7 @@ void MatrixNaive::deinstantiateMatrix()
 	delete[] matrix;
 }
 
-void MatrixNaive::addElementAt(int line, int column, double value)
+void MatrixNaive::setElementAt(int line, int column, double value)
 {
 	if (checkBounds(line, column)) {
 		matrix[line][column] = value;
@@ -82,7 +82,7 @@ void MatrixNaive::generateRandomMatrixValues(double min, double max)
 			//generate random value in the interval [min, max]
 			double value = uniform_distribution(random_engine);
 
-			this->addElementAt(line, column, value);
+			this->setElementAt(line, column, value);
 		}
 	}
 }
@@ -91,7 +91,7 @@ Matrix* MatrixNaive::identityMatrix(int n) {
 	MatrixNaive *identity = new MatrixNaive(n, n);
 
 	for (int i = 0; i < n; ++i) {
-		identity->addElementAt(i, i, 1);
+		identity->setElementAt(i, i, 1);
 	}
 
 	return identity;
@@ -109,7 +109,7 @@ Matrix *MatrixNaive::transpose(Matrix *matrix)
 
 	for (int line = 0; line < noOfLines; ++line) {
 		for (int column = 0; column < noOfColumns; ++column) {
-			T->addElementAt(column, line, matrix->getElementAt(line, column));
+			T->setElementAt(column, line, matrix->getElementAt(line, column));
 		}
 	}
 
@@ -128,11 +128,32 @@ Matrix *MatrixNaive::add(Matrix *matrix1, Matrix *matrix2)
 
 		for (int line = 0; line < matrix1->getNoOfLines(); ++line) {
 			for (int column = 0; column < matrix1->getNoOfColumns(); ++column) {
-				sum->addElementAt(line, column, matrix1->getElementAt(line, column) + matrix2->getElementAt(line, column));
+				sum->setElementAt(line, column,
+								  matrix1->getElementAt(line, column) + matrix2->getElementAt(line, column));
 			}
 		}
 
 		return sum;
+	}
+	return nullptr;
+}
+
+Matrix *MatrixNaive::subtract(Matrix *matrix2) {
+	return subtract(this, matrix2);
+}
+
+Matrix *MatrixNaive::subtract(Matrix *matrix1, Matrix *matrix2) {
+	if (checkEqualSizes(matrix1, matrix2)) {
+		MatrixNaive *difference = new MatrixNaive(matrix1->getNoOfLines(), matrix1->getNoOfLines());
+
+		for (int line = 0; line < matrix1->getNoOfLines(); ++line) {
+			for (int column = 0; column < matrix1->getNoOfColumns(); ++column) {
+				difference->setElementAt(line, column,
+								  matrix1->getElementAt(line, column) - matrix2->getElementAt(line, column));
+			}
+		}
+
+		return difference;
 	}
 	return nullptr;
 }
@@ -156,7 +177,7 @@ Matrix *MatrixNaive::multiply(Matrix *matrix1, Matrix *matrix2)
 					double product = matrix1->getElementAt(line1, column1) * matrix2->getElementAt(column1, column2);
 					sum += product;
                 }
-				productMatrix->addElementAt(line1, column2, sum);
+				productMatrix->setElementAt(line1, column2, sum);
 				sum = 0.0;
             }
         }
@@ -204,9 +225,9 @@ void MatrixNaive::qrDecomposition(Matrix *A, Matrix *b, Matrix **Q, Matrix **R)
 
 			beta = sigma - k * A_copy->getElementAt(r, r);
 
-			u->addElementAt(0, r, (A_copy->getElementAt(r, r) - k));
+			u->setElementAt(0, r, (A_copy->getElementAt(r, r) - k));
 			for (int i = r + 1; i < n; ++i) {
-				u->addElementAt(0, i, A_copy->getElementAt(i, r));
+				u->setElementAt(0, i, A_copy->getElementAt(i, r));
 			}
 
 			//transform the j-th column, j = r+1, ..., n
@@ -218,24 +239,24 @@ void MatrixNaive::qrDecomposition(Matrix *A, Matrix *b, Matrix **Q, Matrix **R)
 				gamma /= beta;
 
 				for (int i = r; i < n; ++i) {
-					A_copy->addElementAt(i, j, A_copy->getElementAt(i, j) - gamma * u->getElementAt(0, i));
+					A_copy->setElementAt(i, j, A_copy->getElementAt(i, j) - gamma * u->getElementAt(0, i));
 				}
 			}
 
 			//transform the r-th column of A
-			A_copy->addElementAt(r, r, k);
+			A_copy->setElementAt(r, r, k);
 			for (int i = r + 1; i < n; ++i) {
-				A_copy->addElementAt(i, r, 0);
+				A_copy->setElementAt(i, r, 0);
 			}
 
 			gamma = 0;
 			for (int i = r; i < n; ++i) {
-				gamma = u->getElementAt(0, i) * b->getElementAt(0, i);
+				gamma = u->getElementAt(0, i) * b->getElementAt(i, 0);
 			}
 			gamma /= beta;
 
 			for (int i = r; i < n; ++i) {
-				b->addElementAt(0, i, b->getElementAt(0, i) - gamma * u->getElementAt(0, i));
+				b->setElementAt(0, i, b->getElementAt(i, 0) - gamma * u->getElementAt(0, i));
 			}
 
 			for (int j = 0; j < n; ++j) {
@@ -246,7 +267,7 @@ void MatrixNaive::qrDecomposition(Matrix *A, Matrix *b, Matrix **Q, Matrix **R)
 				gamma /= beta;
 
 				for (int i = r; i < n; ++i) {
-					Q_tilda->addElementAt(i, j, Q_tilda->getElementAt(i, j) - gamma * u->getElementAt(0, i));
+					Q_tilda->setElementAt(i, j, Q_tilda->getElementAt(i, j) - gamma * u->getElementAt(0, i));
 				}
 			}
 		}
@@ -275,7 +296,7 @@ Matrix *MatrixNaive::clone(Matrix *M)
 
 	for (int line = 0; line < M->getNoOfLines(); ++line) {
 		for (int column = 0; column < M->getNoOfColumns(); ++column) {
-			C->addElementAt(line, column, M->getElementAt(line, column));
+			C->setElementAt(line, column, M->getElementAt(line, column));
 		}
 	}
 
@@ -295,3 +316,80 @@ std::string MatrixNaive::toString()
 	}
 	return stringVersion;
 }
+
+Matrix *MatrixNaive::inverseSubstitutionMethod(Matrix *b) {
+	return inverseSubstitutionMethod(this, b);
+}
+
+Matrix *MatrixNaive::inverseSubstitutionMethod(Matrix *A, Matrix *b) {
+	Matrix *x;
+
+	//check if A is superior triangular
+	if (A->isSuperiorTriangular()) {
+		x = new MatrixNaive(A->getNoOfColumns(), 1);
+
+		for (int i = A->getNoOfLines() - 1; i >= 0; --i) {
+			double x_i = b->getElementAt(i, 0);
+
+			for (int j = i + 1; j < A->getNoOfLines(); ++j) {
+				x_i -= A->getElementAt(i, j) * x->getElementAt(j, 0);
+			}
+
+			x_i /= A->getElementAt(i, i);
+
+			x->setElementAt(i, 0, x_i);
+		}
+
+	}
+	else {
+		x = nullptr;
+	}
+
+	return x;
+}
+
+bool MatrixNaive::isSuperiorTriangular() {
+	return isSuperiorTriangular(this);
+}
+
+bool MatrixNaive::isSuperiorTriangular(Matrix *A) {
+	bool result = true;
+
+	//check if the matrix is square
+	//if the matrix is not square, return false
+	if (A->getNoOfLines() == A->getNoOfColumns()) {
+		for (int line = 0; line < A->getNoOfLines() && result; ++line) {
+			for (int column = 0; column < line; ++column) {
+				if (A->getElementAt(line, column) != 0) {
+					result = false;
+					break;
+				}
+			}
+		}
+	}
+	else {
+		result = false;
+	}
+
+	return result;
+}
+
+double MatrixNaive::superiorTriangularMatrixDeterminant() {
+	return superiorTriangularMatrixDeterminant(this);
+}
+
+double MatrixNaive::superiorTriangularMatrixDeterminant(Matrix *A) {
+	double determinant = 1;
+	if (isSuperiorTriangular(A)) {
+		//we can iterate like that because A should be a square matrix
+		for (int i = 0; i < A->getNoOfLines(); ++i) {
+			determinant *= A->getElementAt(i, i);
+		}
+	}
+	else {
+		determinant = 0;
+	}
+
+	return determinant;
+}
+

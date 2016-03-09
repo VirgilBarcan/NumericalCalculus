@@ -18,7 +18,7 @@ void testNaiveMatrix() {
 	double value = 0.0;
 	for (int line = 0; line < noOfLines; ++line) {
 		for (int column = 0; column < noOfColumns; ++column) {
-			naiveMatrix->addElementAt(line, column, value);
+			naiveMatrix->setElementAt(line, column, value);
 			value += 1;
 		}
 	}
@@ -41,137 +41,156 @@ void testNaiveMatrix() {
 }
 
 MatrixNaive *calculateB(MatrixNaive *s, MatrixNaive *A, int n) {
-	MatrixNaive *b = new MatrixNaive(1, n);
+	MatrixNaive *b = new MatrixNaive(n, 1);
 
 	for (int i = 0; i < n; ++i) {
 		double value = 0;
 
 		for (int j = 0; j < n; ++j) {
-			value += s->getElementAt(0, j) * A->getElementAt(i, j);
+			value += s->getElementAt(j, 0) * A->getElementAt(i, j);
 		}
-		b->addElementAt(0, i, value);
+		b->setElementAt(i, 0, value);
 	}
 
 	return b;
 }
 
-void ex1() {
-	int n = 3;
-	
-	MatrixNaive *s = new MatrixNaive(1, n);
-	MatrixNaive *A = new MatrixNaive(n, n);
+MatrixNaive *copyFromArmadilloMatToMatrix(arma::mat A) {
+	MatrixNaive *M = new MatrixNaive(A.n_rows, A.n_cols);
 
-	s->generateRandomMatrixValues(1, 10);
-	A->generateRandomMatrixValues(1, 10);
+	for (int line = 0; line < A.n_rows; ++line) {
+		for (int column = 0; column < A.n_cols; ++column) {
+			M->setElementAt(line, column, A.at(line, column));
+		}
+	}
 
-	MatrixNaive *b = calculateB(s, A, n);
-
-	printf("s:\n%s\n", s->toString().c_str());
-	printf("A:\n%s\n", A->toString().c_str());
-	printf("b:\n%s\n", b->toString().c_str());
-
-	delete s;
-	delete A;
-	delete b;
+	return M;
 }
 
-void ex2() {
-	int n = 250;
+MatrixNaive *copyFromArmadilloVecToMatrix(arma::vec A) {
+	MatrixNaive *M = new MatrixNaive(A.n_rows, 1);
 
-	MatrixNaive *A = new MatrixNaive(n, n);
-	MatrixNaive *b = new MatrixNaive(1, n);
+	for (int line = 0; line < A.n_rows; ++line) {
+		M->setElementAt(line, 0, A(line));
+	}
+
+	return M;
+}
+
+arma::vec copyFromMatrixToArmadilloVec(MatrixNaive *A) {
+	arma::vec M = arma::ones(A->getNoOfLines());
+
+	for (int line = 0; line < A->getNoOfLines(); ++line) {
+		M(line) = A->getElementAt(line, 0);
+	}
+
+	return M;
+}
+
+void HW(int n) {
+	MatrixNaive *A;
 	MatrixNaive *Q = new MatrixNaive(n, n);
 	MatrixNaive *R = new MatrixNaive(n, n);
-
-	A->generateRandomMatrixValues(0, 100);
-	b->generateRandomMatrixValues(0, 100);
-
-	//check how much it takes to get the QR decomposition
-	clock_t begin = clock();
-	A->qrDecomposition(b, reinterpret_cast<Matrix**>(&Q), reinterpret_cast<Matrix**>(&R));
-	clock_t end = clock();
-
-	printf("A:\n%s\n", A->toString().c_str());
-	printf("Q:\n%s\n", Q->toString().c_str());
-	printf("R:\n%s\n", R->toString().c_str());
-
-	printf("Q*R:\n%s\n", Q->multiply(R)->toString().c_str());
-
-	double elapsed_time = double(end - begin);
-	printf("The QR decomposition took: %f seconds\n", elapsed_time / CLOCKS_PER_SEC);
+	MatrixNaive *s = new MatrixNaive(n, 1);
+	MatrixNaive *b;
+	MatrixNaive *xHouseholder;
 
 	arma::mat A2 = arma::randu<arma::mat>(n, n);
 	arma::mat Q2, R2;
-	
+	arma::vec b2;
+	arma::vec xQR;
+
+	double elapsed_time_qr_our;
+	double elapsed_time_qr_arma;
+	double elapsed_time_solve_our;
+	double elapsed_time_solve_arma;
+	clock_t begin, end;
+
+	//copy the elements from A2 to our A
+	A = copyFromArmadilloMatToMatrix(A2);
+	//A->setElementAt(0, 0, 1); A->setElementAt(0, 1, 3); A->setElementAt(0, 2, 1);
+	//A->setElementAt(1, 0, 3); A->setElementAt(1, 1, 2); A->setElementAt(1, 2, 3);
+	//A->setElementAt(2, 0, 2); A->setElementAt(2, 1, 5); A->setElementAt(2, 2, -2);
+	//A->generateRandomMatrixValues(0, 100);
+	//printf("A:\n%s\n", A->toString().c_str());
+
+	s->generateRandomMatrixValues(0, 100);
+
+	//b->setElementAt(0, 0, 10);
+	//b->setElementAt(1, 0, 16);
+	//b->setElementAt(2, 0, 6);
+	b = calculateB(s, A, n);
+	//printf("b:\n%s\n", b->toString().c_str());
+
+	begin = clock();
+	//calculate the QR decomposition of A using our implementation
+	A->qrDecomposition(b->clone(), reinterpret_cast<Matrix**>(&Q), reinterpret_cast<Matrix**>(&R));
+	//printf("Q:\n%s\n", Q->toString().c_str());
+	//printf("R:\n%s\n", R->toString().c_str());
+	end = clock();
+	elapsed_time_qr_our = double(end - begin) / CLOCKS_PER_SEC;
+
+	begin = clock();
+	//calculate the solution of Ax = b with our implementation
+	xHouseholder = reinterpret_cast<MatrixNaive*>(R->inverseSubstitutionMethod(Q->transpose()->multiply(b)));
+	//printf("xHousehoulder:\n%s\n", xHouseholder->toString().c_str());
+	end = clock();
+	elapsed_time_solve_our = double(end - begin) / CLOCKS_PER_SEC;
+
+	begin = clock();
+	//calculate the QR decomposition of A using Armadillo
 	arma::qr(Q2, R2, A2);
+	end = clock();
+	elapsed_time_qr_arma = double(end - begin) / CLOCKS_PER_SEC;
 
-	//cout << "Q2.n_rows: " << Q2.n_rows << endl;
-	//cout << "Q2.n_cols: " << Q2.n_cols << endl;
+	//calculate the solution of Ax = b with Armadillo
+	b2 = copyFromMatrixToArmadilloVec(b);
+	begin = clock();
+	xQR = arma::solve(A2, b2);
+	end = clock();
+	elapsed_time_solve_arma = double(end - begin) / CLOCKS_PER_SEC;
 
-	//cout << "R2.n_rows: " << R2.n_rows << endl;
-	//cout << "R2.n_cols: " << R2.n_cols << endl;
+	//xQR.print("xQR:");
 
-	//cout << "A2.n_rows: " << A2.n_rows << endl;
-	//cout << "A2.n_cols: " << A2.n_cols << endl;
+	//calculate the norms
+	//calculate ||Ainit * xHouseholder - binit||
+	double first = VectorialNorm::EuclideanNorm(A->multiply(xHouseholder)->subtract(b));
+	printf("||Ainit * xHouseholder - binit|| = %f\n", first);
 
-	A2.print("A2:");
-	Q2.print("Q2:");
-	R2.print("R2:");
+	//TODO: calculate ||Ainit * xQR - binit||
+	double second = VectorialNorm::EuclideanNorm(A->multiply(copyFromArmadilloVecToMatrix(xQR))->subtract(b));
+	printf("||Ainit * xQR - binit|| = %f\n", second);
 
+	//calculate ||xHouseholder - s|| / ||s||
+	double third = VectorialNorm::EuclideanNorm(xHouseholder->subtract(s)) / VectorialNorm::EuclideanNorm(s);
+	printf("||xHouseholder - s|| / ||s|| = %f\n", third);
 
-	delete A;
-	delete Q;
-	delete R;
-}
+	//TODO: calculate ||xQR - s|| / ||s||
+	double fourth = VectorialNorm::EuclideanNorm(copyFromArmadilloVecToMatrix(xQR)->subtract(s)) / VectorialNorm::EuclideanNorm(s);
+	printf("||xQR - s|| / ||s|| = %f\n", fourth);
 
-void ex3() {
-
-}
-
-void ex2_2() {
-	int n = 3;
-
-	MatrixNaive *A = new MatrixNaive(n, n);
-	MatrixNaive *b = new MatrixNaive(1, n);
-	MatrixNaive *Q = new MatrixNaive(n, n);
-	MatrixNaive *R = new MatrixNaive(n, n);
-
-	A->addElementAt(0, 0, 1); A->addElementAt(0, 1, 3); A->addElementAt(0, 2, 1);
-	A->addElementAt(1, 0, 3); A->addElementAt(1, 1, 2); A->addElementAt(1, 2, 3);
-	A->addElementAt(2, 0, 2); A->addElementAt(2, 1, 5); A->addElementAt(2, 2, -2);
-	printf("A:\n%s\n", A->toString().c_str());
-
-	b->addElementAt(0, 0, 10); b->addElementAt(0, 1, 16); b->addElementAt(0, 2, 6);
-	printf("b:\n%s\n", b->toString().c_str());
-
-	printf("EuclideanNorm of b: %f\n", VectorialNorm::EuclideanNorm(b));
-	printf("ManhattanNorm of b: %f\n", VectorialNorm::ManhattanNorm(b));
-	printf("MaximumNorm of b: %f\n", VectorialNorm::MaximumNorm(b));
-	printf("pNorm(1) of b: %f\n", VectorialNorm::pNorm(b, 1));
-	printf("pNorm(2) of b: %f\n", VectorialNorm::pNorm(b, 2));
-	printf("pNorm(3) of b: %f\n\n", VectorialNorm::pNorm(b, 3));
-
-	A->qrDecomposition(b, reinterpret_cast<Matrix**>(&Q), reinterpret_cast<Matrix**>(&R));
-
-	printf("A:\n%s\n", A->toString().c_str());
-	printf("b:\n%s\n", b->toString().c_str());
-	printf("Q:\n%s\n", Q->toString().c_str());
-	printf("R:\n%s\n", R->toString().c_str());
+	//print statistics
+	printf("\nOur implementation:\n");
+	printf("\tQR time: %f seconds\n", elapsed_time_qr_our);
+	printf("\tSolve time: %f seconds\n", elapsed_time_solve_our);
+	printf("\nArmadillo implementation:\n");
+	printf("\tQR time: %f seconds\n", elapsed_time_qr_arma);
+	printf("\tSolve time: %f seconds\n", elapsed_time_solve_arma);
 
 	delete A;
+	delete b;
+	delete s;
 	delete Q;
 	delete R;
+	delete xHouseholder;
 }
 
 int main() {
 
 	//testNaiveMatrix();
 
-	//ex1();
-
-	ex2();
-
-	//ex2_2();
+	//give n, the size
+	HW(250);
 
 	return 0;
 }
