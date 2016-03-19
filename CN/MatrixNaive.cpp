@@ -393,3 +393,25 @@ double MatrixNaive::superiorTriangularMatrixDeterminant(Matrix *A) {
 	return determinant;
 }
 
+bool MatrixNaive::gaussEliminationMethod(Matrix **R, Matrix **B) {
+	return gaussEliminationMethod(this, R, B);
+}
+
+bool MatrixNaive::gaussEliminationMethod(Matrix *A, Matrix **R, Matrix **B) {
+	//build the extended matrix A
+	MatrixNaive *extendedA = new MatrixNaive(A->getNoOfLines(), 2 * A->getNoOfColumns());
+
+	for (int line = 0; line < A->getNoOfLines(); ++line) {
+		for (int column = 0; column < A->getNoOfColumns(); ++column) {
+			extendedA->setElementAt(line, column, A->getElementAt(line, column));
+		}
+	}
+
+	for (int i = 0; i < A->getNoOfLines(); ++i) {
+		extendedA->setElementAt(i, i + A->getNoOfLines(), 1);
+	}
+
+	printf("extendedA: \n%s\n", extendedA->toString().c_str());
+
+	return false;
+}

@@ -306,6 +306,26 @@ public:
 	*/
 	virtual double superiorTriangularMatrixDeterminant(Matrix *A) = 0;
 
+	/**
+	 * The Gauss Elimination method
+	 * It is applied to the extended matrix composed by this matrix and In and gives back the R and B matrices
+	 *
+	 * @param R - the R matrix that results from the algorithm
+	 * @param B - the B matrix that results from the algorithm
+	 * @return true if the matrix is nonsingular(invertible), false if it is singular
+	 */
+	virtual bool gaussEliminationMethod(Matrix **R, Matrix **B) = 0;
+
+	/**
+	 * The Gauss Elimination method
+	 * It is applied to the extended matrix composed by A and In and gives back the R and B matrices
+	 *
+	 * @param R - the R matrix that results from the algorithm
+	 * @param B - the B matrix that results from the algorithm
+	 * @return true if the matrix is nonsingular(invertible), false if it is singular
+	 */
+	virtual bool gaussEliminationMethod(Matrix *A, Matrix **R, Matrix **B) = 0;
+
 	/*
 	Get the clone of the current matrix
 	@return the clone of the current matrix
@@ -318,6 +338,8 @@ public:
 	@return the clone of the M matrix
 	*/
 	virtual Matrix* clone(Matrix *M) = 0;
+
+
 
 	/*
 	Get the string version of the matrix

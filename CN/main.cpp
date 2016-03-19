@@ -87,7 +87,7 @@ arma::vec copyFromMatrixToArmadilloVec(MatrixNaive *A) {
 	return M;
 }
 
-void HW(int n) {
+void HW2(int n) {
 	MatrixNaive *A;
 	MatrixNaive *Q = new MatrixNaive(n, n);
 	MatrixNaive *R = new MatrixNaive(n, n);
@@ -185,12 +185,29 @@ void HW(int n) {
 	delete xHouseholder;
 }
 
+void HW3(int n) {
+	MatrixNaive *A = new MatrixNaive(n, n);
+	MatrixNaive *Q = new MatrixNaive(n, n);
+	MatrixNaive *B = new MatrixNaive(n, n);
+
+	A->generateRandomMatrixValues(0, 100);
+
+	A->gaussEliminationMethod(reinterpret_cast<Matrix**>(&Q), reinterpret_cast<Matrix**>(&B));
+
+	delete A;
+	delete Q;
+	delete B;
+}
+
 int main() {
 
 	//testNaiveMatrix();
 
 	//give n, the size
-	HW(250);
+	//HW2(250);
+
+
+	HW3(3);
 
 	return 0;
 }
