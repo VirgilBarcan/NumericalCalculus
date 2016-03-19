@@ -42,8 +42,8 @@ public:
 	double superiorTriangularMatrixDeterminant(Matrix *A) override;
 
 
-	virtual bool gaussEliminationMethod(Matrix **R, Matrix **B) override;
-	virtual bool gaussEliminationMethod(Matrix *A, Matrix **R, Matrix **B) override;
+	virtual bool gaussEliminationMethod(Matrix *b, Matrix *R, Matrix *B) override;
+	virtual bool gaussEliminationMethod(Matrix *A, Matrix *b, Matrix *R, Matrix *B) override;
 
 	Matrix *clone() override;
 	Matrix *clone(Matrix *M) override;
@@ -55,5 +55,8 @@ private:
 
 	void instantiateMatrix();
 	void deinstantiateMatrix();
+
+
+	void partialPivoting(int l, Matrix *A, Matrix *b);
 };
 

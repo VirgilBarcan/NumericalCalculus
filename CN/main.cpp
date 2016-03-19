@@ -187,15 +187,31 @@ void HW2(int n) {
 
 void HW3(int n) {
 	MatrixNaive *A = new MatrixNaive(n, n);
-	MatrixNaive *Q = new MatrixNaive(n, n);
+	MatrixNaive *b = new MatrixNaive(n, 1);
+	MatrixNaive *R = new MatrixNaive(n, n);
 	MatrixNaive *B = new MatrixNaive(n, n);
 
-	A->generateRandomMatrixValues(0, 100);
+	A->setElementAt(0, 0, 3); A->setElementAt(0, 1, 0); A->setElementAt(0, 2, 1);
+	A->setElementAt(1, 0, 0); A->setElementAt(1, 1, 1); A->setElementAt(1, 2, 1);
+	A->setElementAt(2, 0, 6); A->setElementAt(2, 1, 1); A->setElementAt(2, 2, 4);
 
-	A->gaussEliminationMethod(reinterpret_cast<Matrix**>(&Q), reinterpret_cast<Matrix**>(&B));
+	b->setElementAt(0, 0, 3); b->setElementAt(1, 0, 1); b->setElementAt(2, 0, 3);
+
+	printf("A:\n%s\n", A->toString().c_str());
+	printf("b:\n%s\n", b->toString().c_str());
+	printf("R:\n%s\n", R->toString().c_str());
+	printf("B:\n%s\n", B->toString().c_str());
+
+	A->gaussEliminationMethod(b, R, B);
+
+	printf("A:\n%s\n", A->toString().c_str());
+	printf("b:\n%s\n", b->toString().c_str());
+	printf("R:\n%s\n", R->toString().c_str());
+	printf("B:\n%s\n", B->toString().c_str());
 
 	delete A;
-	delete Q;
+	delete b;
+	delete R;
 	delete B;
 }
 
@@ -203,11 +219,11 @@ int main() {
 
 	//testNaiveMatrix();
 
-	//give n, the size
-	//HW2(250);
+	//Homework 2
+	HW2(250);
 
-
-	HW3(3);
+	//Homework 3
+//	HW3(3);
 
 	return 0;
 }

@@ -310,21 +310,24 @@ public:
 	 * The Gauss Elimination method
 	 * It is applied to the extended matrix composed by this matrix and In and gives back the R and B matrices
 	 *
+	 * @param b - the free terms vector
 	 * @param R - the R matrix that results from the algorithm
 	 * @param B - the B matrix that results from the algorithm
 	 * @return true if the matrix is nonsingular(invertible), false if it is singular
 	 */
-	virtual bool gaussEliminationMethod(Matrix **R, Matrix **B) = 0;
+	virtual bool gaussEliminationMethod(Matrix *b, Matrix *R, Matrix *B) = 0;
 
 	/**
 	 * The Gauss Elimination method
 	 * It is applied to the extended matrix composed by A and In and gives back the R and B matrices
 	 *
+	 * @param A - the matrix on which we apply the algorithm
+	 * @param b - the free terms vector
 	 * @param R - the R matrix that results from the algorithm
 	 * @param B - the B matrix that results from the algorithm
 	 * @return true if the matrix is nonsingular(invertible), false if it is singular
 	 */
-	virtual bool gaussEliminationMethod(Matrix *A, Matrix **R, Matrix **B) = 0;
+	virtual bool gaussEliminationMethod(Matrix *A, Matrix *b, Matrix *R, Matrix *B) = 0;
 
 	/*
 	Get the clone of the current matrix

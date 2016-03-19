@@ -393,11 +393,11 @@ double MatrixNaive::superiorTriangularMatrixDeterminant(Matrix *A) {
 	return determinant;
 }
 
-bool MatrixNaive::gaussEliminationMethod(Matrix **R, Matrix **B) {
-	return gaussEliminationMethod(this, R, B);
+bool MatrixNaive::gaussEliminationMethod(Matrix *b, Matrix *R, Matrix *B) {
+	return gaussEliminationMethod(this, b, R, B);
 }
 
-bool MatrixNaive::gaussEliminationMethod(Matrix *A, Matrix **R, Matrix **B) {
+bool MatrixNaive::gaussEliminationMethod(Matrix *A, Matrix *b, Matrix *R, Matrix *B) {
 	//build the extended matrix A
 	MatrixNaive *extendedA = new MatrixNaive(A->getNoOfLines(), 2 * A->getNoOfColumns());
 
@@ -413,5 +413,78 @@ bool MatrixNaive::gaussEliminationMethod(Matrix *A, Matrix **R, Matrix **B) {
 
 	printf("extendedA: \n%s\n", extendedA->toString().c_str());
 
-	return false;
+	//the algorithm implementation
+	int l = 0;
+
+	partialPivoting(l, extendedA, b);
+
+	printf("extendedA: \n%s\n", extendedA->toString().c_str());
+	//printf("b: \n%s\n", b->toString().c_str());
+
+	while ((l < A->getNoOfLines() - 1) && (fabs(extendedA->getElementAt(l, l)) > epsilon)) {
+		for (int i = l + 1; i < A->getNoOfLines(); ++i) {
+			double f = - extendedA->getElementAt(i, l) / extendedA->getElementAt(l, l);
+
+			for (int j = l + 1; j < 2 * A->getNoOfLines(); ++j) {
+				extendedA->setElementAt(i, j, extendedA->getElementAt(i, j) + f * extendedA->getElementAt(l, j));
+			}
+			extendedA->setElementAt(i, l, 0);
+
+			printf("extendedA': %d \n%s\n", l, extendedA->toString().c_str());
+		}
+		++l;
+		partialPivoting(l, extendedA, b);
+
+		printf("extendedA'': %d \n%s\n", l, extendedA->toString().c_str());
+		//printf("b: \n%s\n", b->toString().c_str());
+	}
+
+	if (fabs(extendedA->getElementAt(l, l)) < epsilon) {
+		//singular matrix
+		R = nullptr;
+		B = nullptr;
+		return false;
+	}
+	//nonsingular matrix
+	//copy elements from extendedA to R and B
+	for (int line = 0; line < extendedA->getNoOfLines(); ++line) {
+		for (int column = 0; column < extendedA->getNoOfColumns(); ++column) {
+			R->setElementAt(line, column, extendedA->getElementAt(line, column));
+		}
+	}
+
+	for (int line = 0; line < extendedA->getNoOfLines(); ++line) {
+		for (int column = 0; column < extendedA->getNoOfColumns(); ++column) {
+			B->setElementAt(line, column, extendedA->getElementAt(line, column + A->getNoOfColumns()));
+		}
+	}
+
+	return true;
+}
+
+void MatrixNaive::partialPivoting(int l, Matrix *A, Matrix *b) {
+	int i0 = -1, max = 0;
+
+	//find i0
+	for (int i = l; i < A->getNoOfLines(); ++i) {
+		if (max < fabs(A->getElementAt(i, l))) {
+			max = fabs(A->getElementAt(i, l));
+			i0 = i;
+		}
+	}
+
+	//change lines i0 and l
+	if ( i0 != l) {
+		double aux;
+		for (int i = 0; i < A->getNoOfColumns(); ++i) {
+			aux = A->getElementAt(i0, i);
+			A->setElementAt(i0, i, A->getElementAt(l, i));
+			A->setElementAt(l, i, aux);
+		}
+
+		//change components i0 and l of the vector b
+		aux = b->getElementAt(i0, 0);
+		b->setElementAt(i0, 0, b->getElementAt(l, 0));
+		b->setElementAt(l, 0, aux);
+	}
 }
