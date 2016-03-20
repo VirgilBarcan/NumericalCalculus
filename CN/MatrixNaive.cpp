@@ -60,6 +60,34 @@ double MatrixNaive::getElementAt(int line, int column)
 	}
 }
 
+Matrix *MatrixNaive::getLine(int line) {
+	if (line >= 0 && line < getNoOfLines()) {
+		MatrixNaive *theLine = new MatrixNaive(1, getNoOfColumns());
+
+		for (int column = 0; column < getNoOfColumns(); ++column) {
+			theLine->setElementAt(0, column, getElementAt(line, column));
+		}
+
+		return theLine;
+	}
+
+	return nullptr;
+}
+
+Matrix *MatrixNaive::getColumn(int column) {
+	if (column >= 0 && column < getNoOfColumns()) {
+		MatrixNaive *theColumn = new MatrixNaive(getNoOfLines(), 1);
+
+		for (int line = 0; line < getNoOfLines(); ++line) {
+			theColumn->setElementAt(line, 0, getElementAt(line, column));
+		}
+
+		return theColumn;
+	}
+
+	return nullptr;
+}
+
 void MatrixNaive::getFromFile(std::string filePath)
 {
 	//TODO: read from the file the matrix size and values
@@ -326,7 +354,7 @@ Matrix *MatrixNaive::inverseSubstitutionMethod(Matrix *A, Matrix *b) {
 
 	//check if A is superior triangular
 	if (A->isSuperiorTriangular()) {
-		x = new MatrixNaive(A->getNoOfColumns(), 1);
+		x = new MatrixNaive(A->getNoOfLines(), 1);
 
 		for (int i = A->getNoOfLines() - 1; i >= 0; --i) {
 			double x_i = b->getElementAt(i, 0);
@@ -411,14 +439,14 @@ bool MatrixNaive::gaussEliminationMethod(Matrix *A, Matrix *b, Matrix *R, Matrix
 		extendedA->setElementAt(i, i + A->getNoOfLines(), 1);
 	}
 
-	printf("extendedA: \n%s\n", extendedA->toString().c_str());
+//	printf("extendedA: \n%s\n", extendedA->toString().c_str());
 
 	//the algorithm implementation
 	int l = 0;
 
 	partialPivoting(l, extendedA, b);
 
-	printf("extendedA: \n%s\n", extendedA->toString().c_str());
+//	printf("extendedA: \n%s\n", extendedA->toString().c_str());
 	//printf("b: \n%s\n", b->toString().c_str());
 
 	while ((l < A->getNoOfLines() - 1) && (fabs(extendedA->getElementAt(l, l)) > epsilon)) {
@@ -430,12 +458,12 @@ bool MatrixNaive::gaussEliminationMethod(Matrix *A, Matrix *b, Matrix *R, Matrix
 			}
 			extendedA->setElementAt(i, l, 0);
 
-			printf("extendedA': %d \n%s\n", l, extendedA->toString().c_str());
+//			printf("extendedA': %d \n%s\n", l, extendedA->toString().c_str());
 		}
 		++l;
 		partialPivoting(l, extendedA, b);
 
-		printf("extendedA'': %d \n%s\n", l, extendedA->toString().c_str());
+//		printf("extendedA'': %d \n%s\n", l, extendedA->toString().c_str());
 		//printf("b: \n%s\n", b->toString().c_str());
 	}
 
@@ -488,3 +516,4 @@ void MatrixNaive::partialPivoting(int l, Matrix *A, Matrix *b) {
 		b->setElementAt(l, 0, aux);
 	}
 }
+

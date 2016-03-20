@@ -41,12 +41,26 @@ public:
 
 	/*
 	Get the value of an element in the matrix
-	This function will be implemented in the derivated classes
+	This function will be implemented in the derived classes
 	@param line - the line where the element should be placed
 	@param column - the column where the element should be placed
 	@return - the value of the element at the wanted line and column
 	*/
 	virtual double getElementAt(int line, int column) = 0;
+
+	/*
+	 Get the line of the matrix
+	 @param line - the wanted line
+	 @return the wanted line in the matrix or null, if the line is not correct
+	 */
+	virtual Matrix *getLine(int line) = 0;
+
+	/*
+	 Get the column of the matrix
+	 @param column - the wanted column
+	 @return the wanted column in the matrix or null, if the column is not correct
+	 */
+	virtual Matrix *getColumn(int column) = 0;
 
 	/*
 	Get the matrix from the file given as parameter

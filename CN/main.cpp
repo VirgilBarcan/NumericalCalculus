@@ -197,17 +197,41 @@ void HW3(int n) {
 
 	b->setElementAt(0, 0, 3); b->setElementAt(1, 0, 1); b->setElementAt(2, 0, 3);
 
+	printf("Begin\n");
 	printf("A:\n%s\n", A->toString().c_str());
 	printf("b:\n%s\n", b->toString().c_str());
 	printf("R:\n%s\n", R->toString().c_str());
 	printf("B:\n%s\n", B->toString().c_str());
 
-	A->gaussEliminationMethod(b, R, B);
+	bool isNonsingular = A->gaussEliminationMethod(b, R, B);
 
-	printf("A:\n%s\n", A->toString().c_str());
-	printf("b:\n%s\n", b->toString().c_str());
-	printf("R:\n%s\n", R->toString().c_str());
-	printf("B:\n%s\n", B->toString().c_str());
+	if (isNonsingular) {
+		MatrixNaive *inverse = new MatrixNaive(A->getNoOfLines(), A->getNoOfColumns());
+
+		for (int column = 0; column < A->getNoOfColumns(); ++column) {
+			Matrix *x = A->inverseSubstitutionMethod(reinterpret_cast<Matrix*>(R), reinterpret_cast<Matrix*>(B->getColumn(column)));
+
+			//copy the vector x to the inverse
+			for (int line = 0; line < x->getNoOfLines(); ++line) {
+				inverse->setElementAt(line, column, x->getElementAt(line, 0));
+			}
+
+			delete x;
+		}
+
+		printf("End\n");
+		printf("A:\n%s\n", A->toString().c_str());
+		printf("A^(-1):\n%s\n", inverse->toString().c_str());
+//		printf("b:\n%s\n", b->toString().c_str());
+//		printf("R:\n%s\n", R->toString().c_str());
+//		printf("B:\n%s\n", B->toString().c_str());
+
+		delete inverse;
+	}
+	else {
+		printf("End\n");
+		printf("A is singular!\n");
+	}
 
 	delete A;
 	delete b;
@@ -220,10 +244,10 @@ int main() {
 	//testNaiveMatrix();
 
 	//Homework 2
-	HW2(250);
+//	HW2(250);
 
 	//Homework 3
-//	HW3(3);
+	HW3(3);
 
 	return 0;
 }

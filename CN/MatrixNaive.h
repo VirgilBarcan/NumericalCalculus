@@ -12,6 +12,9 @@ public:
 	void setElementAt(int line, int column, double value) override;
 	double getElementAt(int line, int column) override;
 
+	Matrix *getLine(int line) override;
+	Matrix *getColumn(int column) override;
+
 	void getFromFile(std::string filePath) override;
 	void generateRandomMatrixValues(double min, double max) override;
 
