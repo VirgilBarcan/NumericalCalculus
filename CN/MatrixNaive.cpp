@@ -125,7 +125,6 @@ Matrix* MatrixNaive::identityMatrix(int n) {
 	return identity;
 }
 
-
 Matrix *MatrixNaive::transpose()
 {
 	return transpose(this);
@@ -142,6 +141,44 @@ Matrix *MatrixNaive::transpose(Matrix *matrix)
 	}
 
 	return T;
+}
+
+Matrix *MatrixNaive::inverse()
+{
+	return inverse(this);
+}
+
+Matrix *MatrixNaive::inverse(Matrix *matrix)
+{
+	MatrixNaive *inverse = new MatrixNaive(matrix->getNoOfLines(), matrix->getNoOfColumns());
+	MatrixNaive *b = new MatrixNaive(matrix->getNoOfLines(), 1);
+	MatrixNaive *R = new MatrixNaive(matrix->getNoOfLines(), matrix->getNoOfColumns());
+	MatrixNaive *B = new MatrixNaive(matrix->getNoOfLines(), matrix->getNoOfColumns());
+
+	bool isNonsingular = matrix->gaussEliminationMethod(b, R, B);
+
+	if (isNonsingular) {
+		for (int column = 0; column < matrix->getNoOfColumns(); ++column) {
+			Matrix *x = matrix->inverseSubstitutionMethod(reinterpret_cast<Matrix*>(R), reinterpret_cast<Matrix*>(B->getColumn(column)));
+
+			//copy the vector x to the inverse
+			for (int line = 0; line < x->getNoOfLines(); ++line) {
+				inverse->setElementAt(line, column, x->getElementAt(line, 0));
+			}
+
+			delete x;
+		}
+	}
+	else {
+		inverse = nullptr;
+		printf("matrix is singular!\n");
+	}
+
+	delete b;
+	delete R;
+	delete B;
+
+	return inverse;
 }
 
 Matrix *MatrixNaive::add(Matrix *matrix)
@@ -516,4 +553,5 @@ void MatrixNaive::partialPivoting(int l, Matrix *A, Matrix *b) {
 		b->setElementAt(l, 0, aux);
 	}
 }
+
 

@@ -23,6 +23,9 @@ public:
 	Matrix *transpose() override;
 	Matrix *transpose(Matrix *matrix) override;
 
+	Matrix *inverse() override;
+	Matrix *inverse(Matrix *matrix) override;
+
 	Matrix *add(Matrix *matrix) override;
 	Matrix *add(Matrix *matrix1, Matrix *matrix2) override;
 

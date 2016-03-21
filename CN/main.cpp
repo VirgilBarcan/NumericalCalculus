@@ -2,6 +2,7 @@
 # include <ctime>
 # include "MatrixNaive.h"
 # include "VectorialNorm.h"
+# include "MatrixNorm.h"
 # include <armadillo>
 
 using namespace std;
@@ -88,6 +89,7 @@ arma::vec copyFromMatrixToArmadilloVec(MatrixNaive *A) {
 }
 
 void HW2(int n) {
+	printf("Homework 2: QR + Inverse substitution method!\n");
 	MatrixNaive *A;
 	MatrixNaive *Q = new MatrixNaive(n, n);
 	MatrixNaive *R = new MatrixNaive(n, n);
@@ -186,57 +188,35 @@ void HW2(int n) {
 }
 
 void HW3(int n) {
+	printf("Homework3: Gauss elimination method!\n");
 	MatrixNaive *A = new MatrixNaive(n, n);
-	MatrixNaive *b = new MatrixNaive(n, 1);
-	MatrixNaive *R = new MatrixNaive(n, n);
-	MatrixNaive *B = new MatrixNaive(n, n);
+	MatrixNaive *I = reinterpret_cast<MatrixNaive*>(MatrixNaive::identityMatrix(n));
+	MatrixNaive *inverse = new MatrixNaive(n, n);
 
-	A->setElementAt(0, 0, 3); A->setElementAt(0, 1, 0); A->setElementAt(0, 2, 1);
-	A->setElementAt(1, 0, 0); A->setElementAt(1, 1, 1); A->setElementAt(1, 2, 1);
-	A->setElementAt(2, 0, 6); A->setElementAt(2, 1, 1); A->setElementAt(2, 2, 4);
+	//first example
+//	A->setElementAt(0, 0, 1); A->setElementAt(0, 1, 0); A->setElementAt(0, 2, 2);
+//	A->setElementAt(1, 0, 0); A->setElementAt(1, 1, 1); A->setElementAt(1, 2, 0);
+//	A->setElementAt(2, 0, 1); A->setElementAt(2, 1, 1); A->setElementAt(2, 2, 1);
 
-	b->setElementAt(0, 0, 3); b->setElementAt(1, 0, 1); b->setElementAt(2, 0, 3);
+	//second example
+//	A->setElementAt(0, 0, 3); A->setElementAt(0, 1, 0); A->setElementAt(0, 2, 1);
+//	A->setElementAt(1, 0, 0); A->setElementAt(1, 1, 1); A->setElementAt(1, 2, 1);
+//	A->setElementAt(2, 0, 6); A->setElementAt(2, 1, 1); A->setElementAt(2, 2, 4);
 
-	printf("Begin\n");
+	//random matrix
+	A->generateRandomMatrixValues(-100, 100);
+
 	printf("A:\n%s\n", A->toString().c_str());
-	printf("b:\n%s\n", b->toString().c_str());
-	printf("R:\n%s\n", R->toString().c_str());
-	printf("B:\n%s\n", B->toString().c_str());
 
-	bool isNonsingular = A->gaussEliminationMethod(b, R, B);
+	inverse = reinterpret_cast<MatrixNaive*>(A->inverse());
+	printf("A^(-1):\n%s\n", inverse->toString().c_str());
 
-	if (isNonsingular) {
-		MatrixNaive *inverse = new MatrixNaive(A->getNoOfLines(), A->getNoOfColumns());
-
-		for (int column = 0; column < A->getNoOfColumns(); ++column) {
-			Matrix *x = A->inverseSubstitutionMethod(reinterpret_cast<Matrix*>(R), reinterpret_cast<Matrix*>(B->getColumn(column)));
-
-			//copy the vector x to the inverse
-			for (int line = 0; line < x->getNoOfLines(); ++line) {
-				inverse->setElementAt(line, column, x->getElementAt(line, 0));
-			}
-
-			delete x;
-		}
-
-		printf("End\n");
-		printf("A:\n%s\n", A->toString().c_str());
-		printf("A^(-1):\n%s\n", inverse->toString().c_str());
-//		printf("b:\n%s\n", b->toString().c_str());
-//		printf("R:\n%s\n", R->toString().c_str());
-//		printf("B:\n%s\n", B->toString().c_str());
-
-		delete inverse;
-	}
-	else {
-		printf("End\n");
-		printf("A is singular!\n");
-	}
+	double norm = MatrixNorm::MaximumColumnSumNorm(A->multiply(inverse)->subtract(I));
+	printf("||A*A^(-1) - I|| = %.32f\n", norm);
 
 	delete A;
-	delete b;
-	delete R;
-	delete B;
+	delete I;
+	delete inverse;
 }
 
 int main() {
@@ -247,7 +227,7 @@ int main() {
 //	HW2(250);
 
 	//Homework 3
-	HW3(3);
+	HW3(50);
 
 	return 0;
 }

@@ -153,6 +153,21 @@ public:
 	virtual Matrix *transpose(Matrix *matrix) = 0;
 
 	/*
+	 * Inverse of this matrix using Gauss elimination algorithm
+	 *
+	 * @return the inverse of this matrix or null, if the matrix is singular
+	 */
+	virtual Matrix *inverse() = 0;
+
+	/*
+	 * Inverse of the matrix using Gauss elimination algorithm
+	 *
+	 * @param matrix - the matrix whose inverse we want
+	 * @return the inverse of the matrix or null, if the matrix is singular
+	 */
+	virtual Matrix *inverse(Matrix *matrix) = 0;
+
+	/*
 	Add the current matrix with the matrix given as parameter
 	Matrix addition is performed element by element
 	@return - the sum of the matrices
