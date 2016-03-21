@@ -47,7 +47,6 @@ public:
 	double superiorTriangularMatrixDeterminant() override;
 	double superiorTriangularMatrixDeterminant(Matrix *A) override;
 
-
 	virtual bool gaussEliminationMethod(Matrix *b, Matrix *R, Matrix *B) override;
 	virtual bool gaussEliminationMethod(Matrix *A, Matrix *b, Matrix *R, Matrix *B) override;
 

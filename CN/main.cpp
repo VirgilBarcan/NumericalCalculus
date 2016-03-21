@@ -1,6 +1,7 @@
 # include <cstdio>
 # include <ctime>
 # include "MatrixNaive.h"
+# include "MatrixSparse.h"
 # include "VectorialNorm.h"
 # include "MatrixNorm.h"
 # include <armadillo>
@@ -219,15 +220,27 @@ void HW3(int n) {
 	delete inverse;
 }
 
+void HW4(int n) {
+	MatrixSparse *A = new MatrixSparse();
+	A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/a_mat.txt");
+
+	printf("A[0, 0]: %f\n", A->getElementAt(0, 0));
+
+	delete A;
+}
+
 int main() {
 
 	//testNaiveMatrix();
 
 	//Homework 2
-//	HW2(250);
+    //HW2(250);
 
 	//Homework 3
-	HW3(50);
+	//HW3(50);
+
+	//Homework 4
+	HW4(5);
 
 	return 0;
 }

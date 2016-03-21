@@ -46,6 +46,7 @@ void MatrixNaive::setElementAt(int line, int column, double value)
 	}
 	else {
 		//maybe throw an exception
+		printf("setElementAt: (line, column) pair not in bounds: (%d, %d) != (%d, %d)\n", line, column, this->noOfLines, this->noOfColumns);
 	}
 }
 
@@ -56,6 +57,7 @@ double MatrixNaive::getElementAt(int line, int column)
 	}
 	else {
 		//maybe throw an exception
+		printf("getElementAt: (line, column) pair not in bounds: (%d, %d) != (%d, %d)\n", line, column, this->noOfLines, this->noOfColumns);
 		return 0.0;
 	}
 }
@@ -93,6 +95,8 @@ void MatrixNaive::getFromFile(std::string filePath)
 	//TODO: read from the file the matrix size and values
 
 	//read size from the first 2 lines
+	//this->noOfLines = lines;
+	//this->noOfColumns = columns;
 
 	//instantiate the matrix
 	//instantiateMatrix();
