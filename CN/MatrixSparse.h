@@ -10,6 +10,11 @@
 # include <vector>
 # include <map>
 
+typedef enum StoreType {
+    LINE,
+    COLUMN
+}StoreType;
+
 class MatrixSparse  : public Matrix
 {
 public:
@@ -61,10 +66,15 @@ public:
     Matrix *clone() override;
     Matrix *clone(Matrix *M) override;
 
+    void setStoreType(StoreType storeType);
+    StoreType getStoreType();
+    std::map<int, double> getListElements(int lineOrColumn);
+
     std::string toString() override;
 
 private:
     std::vector<std::map<int, double>> *list;
+    StoreType storeType;
 
     void instantiateMatrix();
     void deinstantiateMatrix();

@@ -42,6 +42,50 @@ void testNaiveMatrix() {
 	delete randomMatrix;
 }
 
+void testSparseMatrix() {
+	MatrixSparse *A = new MatrixSparse(3, 3); A->setStoreType(LINE);
+	MatrixSparse *B_line = new MatrixSparse(3, 3); B_line->setStoreType(LINE);
+	MatrixSparse *B_column = new MatrixSparse(3, 3); B_column->setStoreType(COLUMN);
+	MatrixSparse *x = new MatrixSparse(3, 1); x->setStoreType(COLUMN);
+	MatrixSparse *S;
+	MatrixSparse *P;
+
+	A->setElementAt(0, 0, 1); A->setElementAt(0, 1, 2); A->setElementAt(0, 2, 3);
+	A->setElementAt(1, 0, 1); A->setElementAt(1, 1, 1); A->setElementAt(1, 2, 1);
+	A->setElementAt(2, 0, 2); A->setElementAt(2, 1, 4); A->setElementAt(2, 2, 3);
+
+	B_line->setElementAt(0, 0, 1); B_line->setElementAt(0, 1, 1); B_line->setElementAt(0, 2, 1);
+	B_line->setElementAt(1, 0, 2); B_line->setElementAt(1, 1, 3); B_line->setElementAt(1, 2, 4);
+	B_line->setElementAt(2, 0, 1); B_line->setElementAt(2, 1, 2); B_line->setElementAt(2, 2, 1);
+
+	B_column->setElementAt(0, 0, 1); B_column->setElementAt(0, 1, 1); B_column->setElementAt(0, 2, 1);
+	B_column->setElementAt(1, 0, 2); B_column->setElementAt(1, 1, 3); B_column->setElementAt(1, 2, 4);
+	B_column->setElementAt(2, 0, 1); B_column->setElementAt(2, 1, 2); B_column->setElementAt(2, 2, 1);
+
+	x->setElementAt(0, 0, 1); x->setElementAt(1, 0, 2); x->setElementAt(2, 0, 3);
+
+	printf("x:\n%s\n", x->toString().c_str());
+
+	S = reinterpret_cast<MatrixSparse*>(A->add(B_line));
+	printf("A+B:\n%s\n", S->toString().c_str());
+
+	S = reinterpret_cast<MatrixSparse*>(A->add(B_column));
+	printf("A+B:\n%s\n", S->toString().c_str());
+
+	P = reinterpret_cast<MatrixSparse*>(A->multiply(B_column));
+	printf("A*B:\n%s\n", P->toString().c_str());
+
+	P = reinterpret_cast<MatrixSparse*>(A->multiply(x));
+	printf("A*x:\n%s\n", P->toString().c_str());
+
+	delete A;
+	delete B_line;
+	delete B_column;
+	delete x;
+	delete S;
+	delete P;
+}
+
 MatrixNaive *calculateB(MatrixNaive *s, MatrixNaive *A, int n) {
 	MatrixNaive *b = new MatrixNaive(n, 1);
 
@@ -221,12 +265,35 @@ void HW3(int n) {
 }
 
 void HW4(int n) {
-	MatrixSparse *A = new MatrixSparse();
+	MatrixSparse *A = new MatrixSparse(); A->setStoreType(LINE);
+	MatrixSparse *B_line = new MatrixSparse(); B_line->setStoreType(LINE);
+	MatrixSparse *B_column = new MatrixSparse(); B_column->setStoreType(COLUMN);
+	MatrixSparse *S;
+	MatrixSparse *P;
+
 	A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/a_mat.txt");
+	B_line->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/b_mat.txt");
+	B_column->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/b_mat.txt");
 
 	printf("A[0, 0]: %f\n", A->getElementAt(0, 0));
+	printf("B_l[0, 0]: %f\n", B_line->getElementAt(0, 0));
+	printf("B_l[0, 92]: %f\n", B_line->getElementAt(0, 92));
+	printf("B_c[0, 0]: %f\n", B_line->getElementAt(0, 0));
+	printf("B_c[0, 92]: %f\n", B_column->getElementAt(0, 92));
+
+	//Calculate S = A + B
+	S = reinterpret_cast<MatrixSparse*>(A->add(B_line));
+
+	printf("S[0, 0]: %f\n", S->getElementAt(0, 0));
+	printf("S[0, 186]: %f\n", S->getElementAt(0, 186));
+	printf("S[5, 6]: %f\n", S->getElementAt(5, 6));
+
+	//Calculate P = A * B
+
 
 	delete A;
+	delete B_line;
+	delete S;
 }
 
 int main() {
@@ -240,7 +307,9 @@ int main() {
 	//HW3(50);
 
 	//Homework 4
-	HW4(5);
+	//HW4(5);
+
+	testSparseMatrix();
 
 	return 0;
 }
