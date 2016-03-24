@@ -85,6 +85,10 @@ void MatrixNaive::generateRandomMatrixValues(double min, double max)
 			this->setElementAt(line, column, value);
 		}
 	}
+
+	for (int line = 0; line < this->getNoOfLines(); ++line) {
+		this->setElementAt(line, 0, this->getElementAt(line, 1));
+	}
 }
 
 Matrix* MatrixNaive::identityMatrix(int n) {
@@ -325,7 +329,7 @@ Matrix *MatrixNaive::inverseSubstitutionMethod(Matrix *A, Matrix *b) {
 	Matrix *x;
 
 	//check if A is superior triangular
-	if (A->isSuperiorTriangular()) {
+	if (A->isSuperiorTriangular() && fabs(A->superiorTriangularMatrixDeterminant()) > epsilon) {
 		x = new MatrixNaive(A->getNoOfColumns(), 1);
 
 		for (int i = A->getNoOfLines() - 1; i >= 0; --i) {
@@ -342,6 +346,7 @@ Matrix *MatrixNaive::inverseSubstitutionMethod(Matrix *A, Matrix *b) {
 
 	}
 	else {
+		printf("Va fi null\n");
 		x = nullptr;
 	}
 
@@ -360,7 +365,7 @@ bool MatrixNaive::isSuperiorTriangular(Matrix *A) {
 	if (A->getNoOfLines() == A->getNoOfColumns()) {
 		for (int line = 0; line < A->getNoOfLines() && result; ++line) {
 			for (int column = 0; column < line; ++column) {
-				if (A->getElementAt(line, column) != 0) {
+				if (fabs(A->getElementAt(line, column)) > epsilon) {
 					result = false;
 					break;
 				}
