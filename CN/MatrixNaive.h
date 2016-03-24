@@ -53,6 +53,9 @@ public:
 	Matrix *clone() override;
 	Matrix *clone(Matrix *M) override;
 
+	bool equals(Matrix *M) override;
+	bool equals(Matrix *A, Matrix *M) override;
+
 	std::string toString() override;
 
 private:

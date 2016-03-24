@@ -44,7 +44,8 @@ void MatrixSparse::setElementAt(int line, int column, double value)
                 double d = (*list).at(line).at(column);
                 (*list)[line][column] = value;
             }
-            catch (std::out_of_range exception) {
+            catch (std::out_of_range ex) {
+//                printf("BOOM! Exception! L\n");
                 (*list)[line][column] = value;
             }
         }
@@ -53,7 +54,8 @@ void MatrixSparse::setElementAt(int line, int column, double value)
                 double d = (*list).at(column).at(line);
                 (*list)[column][line] = value;
             }
-            catch (std::out_of_range exception) {
+            catch (std::out_of_range ex) {
+//                printf("BOOM! Exception! C: %d %d\n", column, line);
                 (*list)[column][line] = value;
             }
         }
@@ -74,7 +76,7 @@ double MatrixSparse::getElementAt(int line, int column)
                 d = (*list)[line][column];
             }
             catch(std::out_of_range ex) {
-                printf("exception boss!\n");
+//                printf("exception boss! L\n");
                 d = 0.0;
             }
         }
@@ -83,7 +85,7 @@ double MatrixSparse::getElementAt(int line, int column)
                 d = (*list)[column][line];
             }
             catch(std::out_of_range ex) {
-                printf("exception boss!\n");
+//                printf("exception boss! C\n");
                 d = 0.0;
             }
         }
@@ -113,18 +115,35 @@ void MatrixSparse::getFromFile(std::string filePath)
     int size;
 
     inputFile >> size;
-    this->noOfLines = size;
-    this->noOfColumns = size;
 
-    //instantiate the matrix
-    instantiateMatrix();
+    if (storeType == LINE) {
+        this->noOfLines = size;
+        this->noOfColumns = size;
 
-    //read data from the file and build the matrix
-    double value;
-    int line, column;
-    while (inputFile >> value >> line >> column) {
-//      printf("l: %d c: %d v: %f\n", line, column, value);
-        setElementAt(line, column, value);
+        //instantiate the matrix
+        instantiateMatrix();
+
+        //read data from the file and build the matrix
+        double value;
+        int line, column;
+        while (inputFile >> value >> line >> column) {
+//            printf("l: %d c: %d v: %f\n", line, column, value);
+            setElementAt(line, column, value);
+        }
+    }
+    else {
+        this->noOfLines = size;
+        this->noOfColumns = 1;
+
+        instantiateMatrix();
+
+        //read data from the file and build the matrix
+        double value;
+        int line = 0;
+        while (inputFile >> value) {
+//            printf("l: %d c: %d v: %f\n", line, column, value);
+            setElementAt(line++, 0, value);
+        }
     }
 
     inputFile.close();
@@ -232,17 +251,7 @@ Matrix *MatrixSparse::multiply(Matrix *matrix1, Matrix *matrix2)
 
         if (((MatrixSparse*)matrix1)->getStoreType() == LINE && ((MatrixSparse*)matrix2)->getStoreType() == COLUMN) {
             for (line1 = 0; line1 < matrix1->getNoOfLines(); ++line1) {
-                for (column2 = 0; column2 < matrix2->getNoOfColumns(); ++column2) {
-                    for (auto p : ((MatrixSparse *) matrix2)->getListElements(line1)) {
-                        double product = matrix1->getElementAt(line1, p.first) * matrix2->getElementAt(p.first, column2);
-                        sum += product;
-                    }
-                    productMatrix->setElementAt(line1, column2, sum);
-                    sum = 0.0;
-                }
-            }
-
-            for (line1 = 0; line1 < matrix1->getNoOfLines(); ++line1) {
+//                printf("line1: %d\n", line1);
                 for (column2 = 0; column2 < matrix2->getNoOfColumns(); ++column2) {
                     for (auto p : ((MatrixSparse *) matrix2)->getListElements(column2)) {
                         double product = matrix1->getElementAt(line1, p.first) * matrix2->getElementAt(p.first, column2);
@@ -338,3 +347,43 @@ void MatrixSparse::setStoreType(StoreType storeType) {
 StoreType MatrixSparse::getStoreType() {
     return this->storeType;
 }
+
+bool MatrixSparse::equals(Matrix *M) {
+    return equals(this, M);
+}
+
+bool MatrixSparse::equals(Matrix *A, Matrix *M) {
+    //compare the sizes of the matrices
+    if (A->getNoOfLines() != M->getNoOfLines() || A->getNoOfLines() != M->getNoOfLines())
+        return false;
+
+    if (((MatrixSparse*)A)->getStoreType() == LINE && ((MatrixSparse*)M)->getStoreType() == LINE) {
+        //compare each list elements
+        for (int line = 0; line < A->getNoOfLines(); ++line) {
+            for (auto p : ((MatrixSparse*)A)->getListElements(line)) {
+                if (fabs(A->getElementAt(line, p.first) - M->getElementAt(line, p.first)) > epsilon) {
+                    printf("%d %d %.32f %.32f %.32f\n", line, p.first,
+                           A->getElementAt(line, p.first), M->getElementAt(line, p.first),
+                           A->getElementAt(line, p.first) - M->getElementAt(line, p.first));
+                    return false;
+                }
+            }
+        }
+    }
+    if (((MatrixSparse*)A)->getStoreType() == COLUMN && ((MatrixSparse*)M)->getStoreType() == COLUMN) {
+        //compare each list elements
+        for (int column = 0; column < A->getNoOfColumns(); ++column) {
+            for (auto p : ((MatrixSparse*)A)->getListElements(column)) {
+                if (fabs(A->getElementAt(p.first, column) - M->getElementAt(p.first, column)) > epsilon) {
+                    printf("%d %d %.32f %.32f %.32f\n", column, p.first,
+                           A->getElementAt(p.first, column), M->getElementAt(p.first, column),
+                           A->getElementAt(p.first, column) - M->getElementAt(p.first, column));
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+

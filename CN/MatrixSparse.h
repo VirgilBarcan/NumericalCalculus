@@ -70,6 +70,9 @@ public:
     StoreType getStoreType();
     std::map<int, double> getListElements(int lineOrColumn);
 
+    bool equals(Matrix *M) override;
+    bool equals(Matrix *A, Matrix *M) override;
+
     std::string toString() override;
 
 private:

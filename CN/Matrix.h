@@ -371,7 +371,21 @@ public:
 	*/
 	virtual Matrix* clone(Matrix *M) = 0;
 
+	/*
+	 * Compare this matrix with the given one
+	 *
+	 * @param M - the matrix to compare with
+	 * @return true if the matrices are equal, false otherwise
+	 */
+	virtual bool equals(Matrix *M) = 0;
 
+	/*
+	 * Compare this matrix with the given one
+	 *
+	 * @param M - the matrix to compare with
+	 * @return true if the matrices are equal, false otherwise
+	 */
+	virtual bool equals(Matrix *A, Matrix *M) = 0;
 
 	/*
 	Get the string version of the matrix

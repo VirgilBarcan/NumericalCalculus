@@ -558,4 +558,11 @@ void MatrixNaive::partialPivoting(int l, Matrix *A, Matrix *b) {
 	}
 }
 
+bool MatrixNaive::equals(Matrix *M) {
+	return equals(this, M);
+}
 
+bool MatrixNaive::equals(Matrix *A, Matrix *M) {
+	//TODO: Implement function
+	return 0;
+}
