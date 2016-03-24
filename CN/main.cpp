@@ -1,7 +1,9 @@
 # include <cstdio>
 # include <ctime>
 # include "MatrixNaive.h"
+# include "MatrixSparse.h"
 # include "VectorialNorm.h"
+# include "MatrixNorm.h"
 # include <armadillo>
 
 using namespace std;
@@ -38,6 +40,53 @@ void testNaiveMatrix() {
 	delete transpose;
 	delete product;
 	delete randomMatrix;
+}
+
+void testSparseMatrix() {
+	MatrixSparse *A = new MatrixSparse(3, 3); A->setStoreType(LINE);
+	MatrixSparse *B_line = new MatrixSparse(3, 3); B_line->setStoreType(LINE);
+	MatrixSparse *B_column = new MatrixSparse(3, 3); B_column->setStoreType(COLUMN);
+	MatrixSparse *x = new MatrixSparse(3, 1); x->setStoreType(COLUMN);
+	MatrixSparse *S;
+	MatrixSparse *P;
+
+	A->setElementAt(0, 0, 1); A->setElementAt(0, 1, 2); A->setElementAt(0, 2, 3);
+	A->setElementAt(1, 0, 1); A->setElementAt(1, 1, 1); A->setElementAt(1, 2, 1);
+	A->setElementAt(2, 0, 2); A->setElementAt(2, 1, 4); A->setElementAt(2, 2, 3);
+
+	B_line->setElementAt(0, 0, 1); B_line->setElementAt(0, 1, 1); B_line->setElementAt(0, 2, 1);
+	B_line->setElementAt(1, 0, 2); B_line->setElementAt(1, 1, 3); B_line->setElementAt(1, 2, 4);
+	B_line->setElementAt(2, 0, 1); B_line->setElementAt(2, 1, 2); B_line->setElementAt(2, 2, 1);
+
+	B_column->setElementAt(0, 0, 1); B_column->setElementAt(0, 1, 1); B_column->setElementAt(0, 2, 1);
+	B_column->setElementAt(1, 0, 2); B_column->setElementAt(1, 1, 3); B_column->setElementAt(1, 2, 4);
+	B_column->setElementAt(2, 0, 1); B_column->setElementAt(2, 1, 2); B_column->setElementAt(2, 2, 1);
+
+	x->setElementAt(0, 0, 1); x->setElementAt(1, 0, 2); x->setElementAt(2, 0, 3);
+
+	printf("x:\n%s\n", x->toString().c_str());
+
+	S = reinterpret_cast<MatrixSparse*>(A->add(B_line));
+	printf("A+B:\n%s\n", S->toString().c_str());
+
+	S = reinterpret_cast<MatrixSparse*>(A->add(B_column));
+	printf("A+B:\n%s\n", S->toString().c_str());
+
+	P = reinterpret_cast<MatrixSparse*>(A->multiply(B_column));
+	printf("A*B:\n%s\n", P->toString().c_str());
+
+	P = reinterpret_cast<MatrixSparse*>(A->multiply(x));
+	printf("A*x:\n%s\n", P->toString().c_str());
+
+	printf("A == A? %d\n", A->equals(A));
+	printf("A == S? %d\n", A->equals(S));
+
+	delete A;
+	delete B_line;
+	delete B_column;
+	delete x;
+	delete S;
+	delete P;
 }
 
 MatrixNaive *calculateB(MatrixNaive *s, MatrixNaive *A, int n) {
@@ -87,7 +136,19 @@ arma::vec copyFromMatrixToArmadilloVec(MatrixNaive *A) {
 	return M;
 }
 
-void HW(int n) {
+MatrixSparse *createX(int n) {
+	MatrixSparse *x = new MatrixSparse(n, 1);
+	x->setStoreType(COLUMN);
+
+	for (int i = 0; i < n; ++i) {
+		x->setElementAt(i, 0, i + 1);
+	}
+
+	return x;
+}
+
+void HW2(int n) {
+	printf("Homework 2: QR + Inverse substitution method!\n");
 	MatrixNaive *A;
 	MatrixNaive *Q = new MatrixNaive(n, n);
 	MatrixNaive *R = new MatrixNaive(n, n);
@@ -190,12 +251,139 @@ void HW(int n) {
 	if (xHouseholder) delete xHouseholder;
 }
 
+void HW3(int n) {
+	printf("Homework3: Gauss elimination method!\n");
+	MatrixNaive *A = new MatrixNaive(n, n);
+	MatrixNaive *I = reinterpret_cast<MatrixNaive*>(MatrixNaive::identityMatrix(n));
+	MatrixNaive *inverse = new MatrixNaive(n, n);
+
+	//first example
+//	A->setElementAt(0, 0, 1); A->setElementAt(0, 1, 0); A->setElementAt(0, 2, 2);
+//	A->setElementAt(1, 0, 0); A->setElementAt(1, 1, 1); A->setElementAt(1, 2, 0);
+//	A->setElementAt(2, 0, 1); A->setElementAt(2, 1, 1); A->setElementAt(2, 2, 1);
+
+	//second example
+//	A->setElementAt(0, 0, 3); A->setElementAt(0, 1, 0); A->setElementAt(0, 2, 1);
+//	A->setElementAt(1, 0, 0); A->setElementAt(1, 1, 1); A->setElementAt(1, 2, 1);
+//	A->setElementAt(2, 0, 6); A->setElementAt(2, 1, 1); A->setElementAt(2, 2, 4);
+
+	//random matrix
+	A->generateRandomMatrixValues(-100, 100);
+
+	printf("A:\n%s\n", A->toString().c_str());
+
+	inverse = reinterpret_cast<MatrixNaive*>(A->inverse());
+	printf("A^(-1):\n%s\n", inverse->toString().c_str());
+
+	double norm = MatrixNorm::MaximumColumnSumNorm(A->multiply(inverse)->subtract(I));
+	printf("||A*A^(-1) - I|| = %.32f\n", norm);
+
+	delete A;
+	delete I;
+	delete inverse;
+}
+
+void HW4() {
+	double epsilon = 0.0001;
+	MatrixSparse *A = new MatrixSparse(); A->setStoreType(LINE);
+	MatrixSparse *b_A = new MatrixSparse(); b_A->setStoreType(COLUMN);
+	MatrixSparse *B_line = new MatrixSparse(); B_line->setStoreType(LINE);
+	MatrixSparse *B_column = new MatrixSparse(); B_column->setStoreType(COLUMN);
+	MatrixSparse *b_B = new MatrixSparse(); b_B->setStoreType(COLUMN);
+	MatrixSparse *AplusB = new MatrixSparse(); AplusB->setStoreType(LINE);
+	MatrixSparse *b_AplusB = new MatrixSparse(); b_AplusB->setStoreType(COLUMN);
+	MatrixSparse *AoriB = new MatrixSparse(); AoriB->setStoreType(LINE);
+	MatrixSparse *b_AoriB = new MatrixSparse(); b_AoriB->setStoreType(COLUMN);
+	MatrixSparse *S;
+	MatrixSparse *P;
+	MatrixSparse *x;
+	MatrixSparse *Ax;
+	MatrixSparse *Bx;
+	MatrixSparse *AplusBx;
+	MatrixSparse *AoriBx;
+
+	A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/a_mat.txt");
+	b_A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/a_vect.txt");
+
+	B_line->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/b_mat.txt");
+	B_column->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/b_mat.txt");
+	b_B->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/b_vect.txt");
+
+	AplusB->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/aplusb_mat.txt");
+	b_AplusB->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/aplusb_vect.txt");
+
+	AoriB->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/aorib_mat.txt");
+	b_AoriB->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/aorib_vect.txt");
+
+//	printf("A[0, 0]: %f\n", A->getElementAt(0, 0));
+//	printf("B_c[0, 0]: %f\n", B_column->getElementAt(0, 0));
+//	printf("B_c[0, 92]: %f\n", B_column->getElementAt(0, 92));
+
+	//Calculate S = A + B
+	S = reinterpret_cast<MatrixSparse*>(A->add(B_line)); S->setEpsilon(epsilon);
+//	printf("S[0, 0]: %f\n", S->getElementAt(0, 0));
+//	printf("S[0, 186]: %f\n", S->getElementAt(0, 186));
+//	printf("S[5, 6]: %f\n", S->getElementAt(5, 6));
+
+	double begin = clock();
+	//Calculate P = A * B
+	P = reinterpret_cast<MatrixSparse*>(A->multiply(B_column)); P->setEpsilon(epsilon);
+	//printf("A*B:\n%s\n", P->toString().c_str());
+	double end = clock();
+	double elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
+	printf("Multiplication took: %f seconds\n", elapsed_time);
+
+	printf("S == AplusB? %s\n", S->equals(AplusB) == true ? "true" : "false");
+	printf("P == AoriB? %s\n", P->equals(AoriB)  == true ? "true" : "false");
+
+	//create x
+	x = createX(A->getNoOfLines());
+	printf("Created x\n");
+
+	//A*x
+	Ax = reinterpret_cast<MatrixSparse*>(A->multiply(x)); Ax->setEpsilon(epsilon);
+	printf("A*x == b_A? %s\n", Ax->equals(b_A)  == true ? "true" : "false");
+
+	//B*x
+	Bx = reinterpret_cast<MatrixSparse*>(B_line->multiply(x)); Bx->setEpsilon(epsilon);
+	printf("B*x == b_B? %s\n", Bx->equals(b_B)  == true ? "true" : "false");
+
+	//AplusB*x
+	AplusBx = reinterpret_cast<MatrixSparse*>(AplusB->multiply(x)); AplusBx->setEpsilon(epsilon);
+	printf("AplusB*x == b_AplusB? %s\n", AplusBx->equals(b_AplusB)  == true ? "true" : "false");
+
+	//AoriB*x
+	AoriBx = reinterpret_cast<MatrixSparse*>(AoriB->multiply(x)); AoriBx->setEpsilon(epsilon);
+	printf("AoriB*x == b_AoriB? %s\n", AoriBx->equals(b_AoriB)  == true ? "true" : "false");
+
+	delete A;
+	delete AplusB;
+	delete AoriB;
+	delete B_line;
+	delete B_column;
+	delete S;
+	delete P;
+	delete x;
+	delete Ax;
+	delete Bx;
+	delete AplusBx;
+	delete AoriBx;
+}
+
 int main() {
 
 	//testNaiveMatrix();
 
-	//give n, the size
-	HW(250);
+	//Homework 2
+    //HW2(250);
+
+	//Homework 3
+	//HW3(50);
+
+	//Homework 4
+	HW4();
+
+//	testSparseMatrix();
 
 	return 0;
 }

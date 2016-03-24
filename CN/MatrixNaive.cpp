@@ -46,6 +46,7 @@ void MatrixNaive::setElementAt(int line, int column, double value)
 	}
 	else {
 		//maybe throw an exception
+		printf("setElementAt: (line, column) pair not in bounds: (%d, %d) != (%d, %d)\n", line, column, this->noOfLines, this->noOfColumns);
 	}
 }
 
@@ -56,8 +57,37 @@ double MatrixNaive::getElementAt(int line, int column)
 	}
 	else {
 		//maybe throw an exception
+		printf("getElementAt: (line, column) pair not in bounds: (%d, %d) != (%d, %d)\n", line, column, this->noOfLines, this->noOfColumns);
 		return 0.0;
 	}
+}
+
+Matrix *MatrixNaive::getLine(int line) {
+	if (line >= 0 && line < getNoOfLines()) {
+		MatrixNaive *theLine = new MatrixNaive(1, getNoOfColumns());
+
+		for (int column = 0; column < getNoOfColumns(); ++column) {
+			theLine->setElementAt(0, column, getElementAt(line, column));
+		}
+
+		return theLine;
+	}
+
+	return nullptr;
+}
+
+Matrix *MatrixNaive::getColumn(int column) {
+	if (column >= 0 && column < getNoOfColumns()) {
+		MatrixNaive *theColumn = new MatrixNaive(getNoOfLines(), 1);
+
+		for (int line = 0; line < getNoOfLines(); ++line) {
+			theColumn->setElementAt(line, 0, getElementAt(line, column));
+		}
+
+		return theColumn;
+	}
+
+	return nullptr;
 }
 
 void MatrixNaive::getFromFile(std::string filePath)
@@ -65,6 +95,8 @@ void MatrixNaive::getFromFile(std::string filePath)
 	//TODO: read from the file the matrix size and values
 
 	//read size from the first 2 lines
+	//this->noOfLines = lines;
+	//this->noOfColumns = columns;
 
 	//instantiate the matrix
 	//instantiateMatrix();
@@ -85,10 +117,6 @@ void MatrixNaive::generateRandomMatrixValues(double min, double max)
 			this->setElementAt(line, column, value);
 		}
 	}
-
-	for (int line = 0; line < this->getNoOfLines(); ++line) {
-		this->setElementAt(line, 0, this->getElementAt(line, 1));
-	}
 }
 
 Matrix* MatrixNaive::identityMatrix(int n) {
@@ -100,7 +128,6 @@ Matrix* MatrixNaive::identityMatrix(int n) {
 
 	return identity;
 }
-
 
 Matrix *MatrixNaive::transpose()
 {
@@ -118,6 +145,44 @@ Matrix *MatrixNaive::transpose(Matrix *matrix)
 	}
 
 	return T;
+}
+
+Matrix *MatrixNaive::inverse()
+{
+	return inverse(this);
+}
+
+Matrix *MatrixNaive::inverse(Matrix *matrix)
+{
+	MatrixNaive *inverse = new MatrixNaive(matrix->getNoOfLines(), matrix->getNoOfColumns());
+	MatrixNaive *b = new MatrixNaive(matrix->getNoOfLines(), 1);
+	MatrixNaive *R = new MatrixNaive(matrix->getNoOfLines(), matrix->getNoOfColumns());
+	MatrixNaive *B = new MatrixNaive(matrix->getNoOfLines(), matrix->getNoOfColumns());
+
+	bool isNonsingular = matrix->gaussEliminationMethod(b, R, B);
+
+	if (isNonsingular) {
+		for (int column = 0; column < matrix->getNoOfColumns(); ++column) {
+			Matrix *x = matrix->inverseSubstitutionMethod(reinterpret_cast<Matrix*>(R), reinterpret_cast<Matrix*>(B->getColumn(column)));
+
+			//copy the vector x to the inverse
+			for (int line = 0; line < x->getNoOfLines(); ++line) {
+				inverse->setElementAt(line, column, x->getElementAt(line, 0));
+			}
+
+			delete x;
+		}
+	}
+	else {
+		inverse = nullptr;
+		printf("matrix is singular!\n");
+	}
+
+	delete b;
+	delete R;
+	delete B;
+
+	return inverse;
 }
 
 Matrix *MatrixNaive::add(Matrix *matrix)
@@ -329,8 +394,8 @@ Matrix *MatrixNaive::inverseSubstitutionMethod(Matrix *A, Matrix *b) {
 	Matrix *x;
 
 	//check if A is superior triangular
-	if (A->isSuperiorTriangular() && fabs(A->superiorTriangularMatrixDeterminant()) > epsilon) {
-		x = new MatrixNaive(A->getNoOfColumns(), 1);
+	if (A->isSuperiorTriangular()) {
+		x = new MatrixNaive(A->getNoOfLines(), 1);
 
 		for (int i = A->getNoOfLines() - 1; i >= 0; --i) {
 			double x_i = b->getElementAt(i, 0);
@@ -346,7 +411,6 @@ Matrix *MatrixNaive::inverseSubstitutionMethod(Matrix *A, Matrix *b) {
 
 	}
 	else {
-		printf("Va fi null\n");
 		x = nullptr;
 	}
 
@@ -365,7 +429,7 @@ bool MatrixNaive::isSuperiorTriangular(Matrix *A) {
 	if (A->getNoOfLines() == A->getNoOfColumns()) {
 		for (int line = 0; line < A->getNoOfLines() && result; ++line) {
 			for (int column = 0; column < line; ++column) {
-				if (fabs(A->getElementAt(line, column)) > epsilon) {
+				if (A->getElementAt(line, column) != 0) {
 					result = false;
 					break;
 				}
@@ -398,3 +462,107 @@ double MatrixNaive::superiorTriangularMatrixDeterminant(Matrix *A) {
 	return determinant;
 }
 
+bool MatrixNaive::gaussEliminationMethod(Matrix *b, Matrix *R, Matrix *B) {
+	return gaussEliminationMethod(this, b, R, B);
+}
+
+bool MatrixNaive::gaussEliminationMethod(Matrix *A, Matrix *b, Matrix *R, Matrix *B) {
+	//build the extended matrix A
+	MatrixNaive *extendedA = new MatrixNaive(A->getNoOfLines(), 2 * A->getNoOfColumns());
+
+	for (int line = 0; line < A->getNoOfLines(); ++line) {
+		for (int column = 0; column < A->getNoOfColumns(); ++column) {
+			extendedA->setElementAt(line, column, A->getElementAt(line, column));
+		}
+	}
+
+	for (int i = 0; i < A->getNoOfLines(); ++i) {
+		extendedA->setElementAt(i, i + A->getNoOfLines(), 1);
+	}
+
+//	printf("extendedA: \n%s\n", extendedA->toString().c_str());
+
+	//the algorithm implementation
+	int l = 0;
+
+	partialPivoting(l, extendedA, b);
+
+//	printf("extendedA: \n%s\n", extendedA->toString().c_str());
+	//printf("b: \n%s\n", b->toString().c_str());
+
+	while ((l < A->getNoOfLines() - 1) && (fabs(extendedA->getElementAt(l, l)) > epsilon)) {
+		for (int i = l + 1; i < A->getNoOfLines(); ++i) {
+			double f = - extendedA->getElementAt(i, l) / extendedA->getElementAt(l, l);
+
+			for (int j = l + 1; j < 2 * A->getNoOfLines(); ++j) {
+				extendedA->setElementAt(i, j, extendedA->getElementAt(i, j) + f * extendedA->getElementAt(l, j));
+			}
+			extendedA->setElementAt(i, l, 0);
+
+//			printf("extendedA': %d \n%s\n", l, extendedA->toString().c_str());
+		}
+		++l;
+		partialPivoting(l, extendedA, b);
+
+//		printf("extendedA'': %d \n%s\n", l, extendedA->toString().c_str());
+		//printf("b: \n%s\n", b->toString().c_str());
+	}
+
+	if (fabs(extendedA->getElementAt(l, l)) < epsilon) {
+		//singular matrix
+		R = nullptr;
+		B = nullptr;
+		return false;
+	}
+	//nonsingular matrix
+	//copy elements from extendedA to R and B
+	for (int line = 0; line < extendedA->getNoOfLines(); ++line) {
+		for (int column = 0; column < extendedA->getNoOfColumns(); ++column) {
+			R->setElementAt(line, column, extendedA->getElementAt(line, column));
+		}
+	}
+
+	for (int line = 0; line < extendedA->getNoOfLines(); ++line) {
+		for (int column = 0; column < extendedA->getNoOfColumns(); ++column) {
+			B->setElementAt(line, column, extendedA->getElementAt(line, column + A->getNoOfColumns()));
+		}
+	}
+
+	return true;
+}
+
+void MatrixNaive::partialPivoting(int l, Matrix *A, Matrix *b) {
+	int i0 = -1, max = 0;
+
+	//find i0
+	for (int i = l; i < A->getNoOfLines(); ++i) {
+		if (max < fabs(A->getElementAt(i, l))) {
+			max = fabs(A->getElementAt(i, l));
+			i0 = i;
+		}
+	}
+
+	//change lines i0 and l
+	if ( i0 != l) {
+		double aux;
+		for (int i = 0; i < A->getNoOfColumns(); ++i) {
+			aux = A->getElementAt(i0, i);
+			A->setElementAt(i0, i, A->getElementAt(l, i));
+			A->setElementAt(l, i, aux);
+		}
+
+		//change components i0 and l of the vector b
+		aux = b->getElementAt(i0, 0);
+		b->setElementAt(i0, 0, b->getElementAt(l, 0));
+		b->setElementAt(l, 0, aux);
+	}
+}
+
+bool MatrixNaive::equals(Matrix *M) {
+	return equals(this, M);
+}
+
+bool MatrixNaive::equals(Matrix *A, Matrix *M) {
+	//TODO: Implement function
+	return 0;
+}

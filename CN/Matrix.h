@@ -41,12 +41,26 @@ public:
 
 	/*
 	Get the value of an element in the matrix
-	This function will be implemented in the derivated classes
+	This function will be implemented in the derived classes
 	@param line - the line where the element should be placed
 	@param column - the column where the element should be placed
 	@return - the value of the element at the wanted line and column
 	*/
 	virtual double getElementAt(int line, int column) = 0;
+
+	/*
+	 Get the line of the matrix
+	 @param line - the wanted line
+	 @return the wanted line in the matrix or null, if the line is not correct
+	 */
+	virtual Matrix *getLine(int line) = 0;
+
+	/*
+	 Get the column of the matrix
+	 @param column - the wanted column
+	 @return the wanted column in the matrix or null, if the column is not correct
+	 */
+	virtual Matrix *getColumn(int column) = 0;
 
 	/*
 	Get the matrix from the file given as parameter
@@ -137,6 +151,21 @@ public:
 	@return - the transpose of the matrix
 	*/
 	virtual Matrix *transpose(Matrix *matrix) = 0;
+
+	/*
+	 * Inverse of this matrix using Gauss elimination algorithm
+	 *
+	 * @return the inverse of this matrix or null, if the matrix is singular
+	 */
+	virtual Matrix *inverse() = 0;
+
+	/*
+	 * Inverse of the matrix using Gauss elimination algorithm
+	 *
+	 * @param matrix - the matrix whose inverse we want
+	 * @return the inverse of the matrix or null, if the matrix is singular
+	 */
+	virtual Matrix *inverse(Matrix *matrix) = 0;
 
 	/*
 	Add the current matrix with the matrix given as parameter
@@ -306,6 +335,29 @@ public:
 	*/
 	virtual double superiorTriangularMatrixDeterminant(Matrix *A) = 0;
 
+	/**
+	 * The Gauss Elimination method
+	 * It is applied to the extended matrix composed by this matrix and In and gives back the R and B matrices
+	 *
+	 * @param b - the free terms vector
+	 * @param R - the R matrix that results from the algorithm
+	 * @param B - the B matrix that results from the algorithm
+	 * @return true if the matrix is nonsingular(invertible), false if it is singular
+	 */
+	virtual bool gaussEliminationMethod(Matrix *b, Matrix *R, Matrix *B) = 0;
+
+	/**
+	 * The Gauss Elimination method
+	 * It is applied to the extended matrix composed by A and In and gives back the R and B matrices
+	 *
+	 * @param A - the matrix on which we apply the algorithm
+	 * @param b - the free terms vector
+	 * @param R - the R matrix that results from the algorithm
+	 * @param B - the B matrix that results from the algorithm
+	 * @return true if the matrix is nonsingular(invertible), false if it is singular
+	 */
+	virtual bool gaussEliminationMethod(Matrix *A, Matrix *b, Matrix *R, Matrix *B) = 0;
+
 	/*
 	Get the clone of the current matrix
 	@return the clone of the current matrix
@@ -318,6 +370,22 @@ public:
 	@return the clone of the M matrix
 	*/
 	virtual Matrix* clone(Matrix *M) = 0;
+
+	/*
+	 * Compare this matrix with the given one
+	 *
+	 * @param M - the matrix to compare with
+	 * @return true if the matrices are equal, false otherwise
+	 */
+	virtual bool equals(Matrix *M) = 0;
+
+	/*
+	 * Compare this matrix with the given one
+	 *
+	 * @param M - the matrix to compare with
+	 * @return true if the matrices are equal, false otherwise
+	 */
+	virtual bool equals(Matrix *A, Matrix *M) = 0;
 
 	/*
 	Get the string version of the matrix

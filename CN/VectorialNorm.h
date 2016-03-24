@@ -59,7 +59,7 @@ public:
 	/*
 	The Maximum Norm, or the maximum absolute value of all components of x
 	||x|| = max { |x1|, |x2|, ..., |xn| }
-	This is also called the linfinity distance
+	This is also called the infinity distance
 
 	@param x - the column vector for which we want to calculate the norm
 	@return the maximum norm or -1 if x is not a vector
