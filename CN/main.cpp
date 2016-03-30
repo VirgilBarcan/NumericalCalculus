@@ -199,7 +199,12 @@ void HW2(int n) {
 
 	begin = clock();
 	//calculate the solution of Ax = b with our implementation
-	xHouseholder = reinterpret_cast<MatrixNaive*>(R->inverseSubstitutionMethod(Q->transpose()->multiply(b)));
+	void *ptr = R->inverseSubstitutionMethod(Q->transpose()->multiply(b));
+	if (!ptr)
+		return;
+
+	xHouseholder = reinterpret_cast<MatrixNaive*>(ptr);
+
 	//printf("xHousehoulder:\n%s\n", xHouseholder->toString().c_str());
 	end = clock();
 	elapsed_time_solve_our = double(end - begin) / CLOCKS_PER_SEC;
@@ -222,19 +227,19 @@ void HW2(int n) {
 	//calculate the norms
 	//calculate ||Ainit * xHouseholder - binit||
 	double first = VectorialNorm::EuclideanNorm(A->multiply(xHouseholder)->subtract(b));
-	printf("||Ainit * xHouseholder - binit|| = %f\n", first);
+	printf("||Ainit * xHouseholder - binit|| = %.32f\n", first);
 
 	//TODO: calculate ||Ainit * xQR - binit||
 	double second = VectorialNorm::EuclideanNorm(A->multiply(copyFromArmadilloVecToMatrix(xQR))->subtract(b));
-	printf("||Ainit * xQR - binit|| = %f\n", second);
+	printf("||Ainit * xQR - binit|| = %.32f\n", second);
 
 	//calculate ||xHouseholder - s|| / ||s||
 	double third = VectorialNorm::EuclideanNorm(xHouseholder->subtract(s)) / VectorialNorm::EuclideanNorm(s);
-	printf("||xHouseholder - s|| / ||s|| = %f\n", third);
+	printf("||xHouseholder - s|| / ||s|| = %.32f\n", third);
 
 	//TODO: calculate ||xQR - s|| / ||s||
 	double fourth = VectorialNorm::EuclideanNorm(copyFromArmadilloVecToMatrix(xQR)->subtract(s)) / VectorialNorm::EuclideanNorm(s);
-	printf("||xQR - s|| / ||s|| = %f\n", fourth);
+	printf("||xQR - s|| / ||s|| = %.32f\n", fourth);
 
 	//print statistics
 	printf("\nOur implementation:\n");
@@ -244,12 +249,12 @@ void HW2(int n) {
 	printf("\tQR time: %f seconds\n", elapsed_time_qr_arma);
 	printf("\tSolve time: %f seconds\n", elapsed_time_solve_arma);
 
-	delete A;
-	delete b;
-	delete s;
-	delete Q;
-	delete R;
-	delete xHouseholder;
+	if (A) delete A;
+	if (b) delete b;
+	if (s) delete s;
+	if (Q) delete Q;
+	if (R) delete R;
+	if (xHouseholder) delete xHouseholder;
 }
 
 void HW3(int n) {
