@@ -382,8 +382,8 @@ void HW5(int p) {
 	MatrixSparse *b = new MatrixSparse(); b->setStoreType(COLUMN); A->setEpsilon(epsilon);
 	MatrixSparse *x = new MatrixSparse();
 
-	A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/5/test_mat.txt");
-	b->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/5/test_vect.txt");
+	A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/5/m_rar_2016_1_mat.txt");
+	b->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/5/m_rar_2016_1_vect.txt");
 
 	x = reinterpret_cast<MatrixSparse*>(A->sorMethod(b));
 	printf("x=\n%s\n", x->toString().c_str());
@@ -391,11 +391,15 @@ void HW5(int p) {
 	MatrixSparse *Ax = new MatrixSparse();
 	Ax = reinterpret_cast<MatrixSparse*>(A->multiply(x));
 	//printf("b=\n%s\n", b->toString().c_str());
-	printf("Ax=\n%s\n", Ax->toString().c_str());
+	//printf("Ax=\n%s\n", Ax->toString().c_str());
+
+	double norm = MatrixNorm::MaximumRowSumNormSparse(reinterpret_cast<MatrixSparse*>(Ax->subtract(b)));
+	printf("||Ax - b|| = %.16f\n", norm);
 
 	delete A;
 	delete b;
 	delete x;
+	delete Ax;
 }
 
 int main() {

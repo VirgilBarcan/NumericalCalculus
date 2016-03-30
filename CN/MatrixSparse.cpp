@@ -297,7 +297,6 @@ Matrix *MatrixSparse::multiply(Matrix *matrix1, Matrix *matrix2)
 
         if (((MatrixSparse*)matrix1)->getStoreType() == LINE && ((MatrixSparse*)matrix2)->getStoreType() == COLUMN) {
             for (line1 = 0; line1 < matrix1->getNoOfLines(); ++line1) {
-//                printf("line1: %d\n", line1);
                 for (column2 = 0; column2 < matrix2->getNoOfColumns(); ++column2) {
                     for (auto p : ((MatrixSparse *) matrix2)->getListElements(column2)) {
                         double product = matrix1->getElementAt(line1, p.first) * matrix2->getElementAt(p.first, column2);
@@ -409,11 +408,11 @@ Matrix *MatrixSparse::clone(Matrix *M)
     }
     if (((MatrixSparse *) M)->getStoreType() == COLUMN) {
         MatrixSparse *C = new MatrixSparse(M->getNoOfLines(), M->getNoOfColumns());
-        C->setStoreType(LINE);
+        C->setStoreType(COLUMN);
         for (int column = 0; column < M->getNoOfColumns(); ++column) {
             std::map<int, double> aux = ((MatrixSparse *) M)->getListElements(column);
             for (auto element : aux) {
-                C->setElementAt(column, element.first, M->getElementAt(column, element.first));
+                C->setElementAt(element.first, column, M->getElementAt(element.first, column));
             }
         }
         return C;
@@ -547,41 +546,46 @@ Matrix *MatrixSparse::sorMethod(Matrix *A, Matrix *b) {
 
         std::map<int, double> aux;
 
+//        for (int i = 0; i < A->getNoOfLines(); ++i) {
+//            xp->setElementAt(i, 0, i + 1);
+//        }
+
         double delta_x = 0;
         int k = 0;
 
         do {
-            //copy xc in xp
-            xp = reinterpret_cast<MatrixSparse*>(xc->clone()); xp->setStoreType(COLUMN);
-
             for (int i = 0; i < A->getNoOfLines(); ++i) {
                 aux = (reinterpret_cast<MatrixSparse*>(A)->getListElements(i));
 
-                //calculate sum with j = 1, i-1 of a[i][j] * x(k+1)[j]
-                double sum1 = 0;
-                for (auto element : aux) {
-                    if (element.first < i) {
-                        sum1 += A->getElementAt(i, element.first) * xc->getElementAt(element.first, 0);
-                    }
-                }
+                if (0 != aux.size()) {
+                    //calculate sum with j = 1, i-1 of a[i][j] * x(k+1)[j]
+                    double sum1 = 0;
+                    //calculate sum with j = i + 1, n of a[i][j] * x(k)[j]
+                    double sum2 = 0;
+                    for (auto element : aux) {
+                        if (element.first < i) {
+                            sum1 += A->getElementAt(i, element.first) * xc->getElementAt(element.first, 0);
+                        }
 
-                //calculate sum with j = i + 1, n of a[i][j] * x(k)[j]
-                double sum2 = 0;
-                for (auto element : aux) {
-                    if (element.first > i) {
-                        sum2 += A->getElementAt(i, element.first) * xp->getElementAt(element.first, 0);
+                        if (element.first > i) {
+                            sum2 += A->getElementAt(i, element.first) * xp->getElementAt(element.first, 0);
+                        }
                     }
-                }
 
-                xc->setElementAt(i, 0,
-                                 (-0.2 * xp->getElementAt(i, 0)) +
-                                1.2 * (b->getElementAt(i, 0) - sum1 - sum2) / (A->getElementAt(i, i)));
+                    xc->setElementAt(i, 0,
+                                     (-0.2 * xp->getElementAt(i, 0)) +
+                                    1.2 * (b->getElementAt(i, 0) - sum1 - sum2) / (A->getElementAt(i, i)));
+                }
             }
 
             delta_x = MatrixNorm::MaximumRowSumNormSparse(reinterpret_cast<MatrixSparse*>(xc->subtract(xp)));
 
             printf("k = %d -- delta_x = %.16f\n", k, delta_x);
-            printf("xc = \n%s\n", xc->toString().c_str());
+//            printf("xc = \n%s\n", xc->toString().c_str());
+//            printf("xp = \n%s\n", xp->toString().c_str());
+
+            //copy xc in xp
+            xp = reinterpret_cast<MatrixSparse*>(xc->clone());
 
             ++k;
 
