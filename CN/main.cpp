@@ -66,8 +66,14 @@ void testSparseMatrix() {
 
 	printf("x:\n%s\n", x->toString().c_str());
 
+	printf("A:\n%s\n", A->toString().c_str());
+	printf("B:\n%s\n", B_line->toString().c_str());
+
 	S = reinterpret_cast<MatrixSparse*>(A->add(B_line));
 	printf("A+B:\n%s\n", S->toString().c_str());
+
+	S = reinterpret_cast<MatrixSparse*>(B_column->subtract(B_column));
+	printf("B-B:\n%s\n", S->toString().c_str());
 
 	S = reinterpret_cast<MatrixSparse*>(A->add(B_column));
 	printf("A+B:\n%s\n", S->toString().c_str());
@@ -365,20 +371,44 @@ void HW4() {
 	delete AoriBx;
 }
 
+void HW5(int p) {
+	double epsilon = pow(10, -p);
+	MatrixSparse *A = new MatrixSparse(); A->setStoreType(LINE); A->setEpsilon(epsilon);
+	MatrixSparse *b = new MatrixSparse(); b->setStoreType(COLUMN); A->setEpsilon(epsilon);
+	MatrixSparse *x = new MatrixSparse();
+
+	A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/5/test_mat.txt");
+	b->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/5/test_vect.txt");
+
+	x = reinterpret_cast<MatrixSparse*>(A->sorMethod(b));
+	printf("x=\n%s\n", x->toString().c_str());
+
+	MatrixSparse *Ax = new MatrixSparse();
+	Ax = reinterpret_cast<MatrixSparse*>(A->multiply(x));
+	//printf("b=\n%s\n", b->toString().c_str());
+	printf("Ax=\n%s\n", Ax->toString().c_str());
+
+	delete A;
+	delete b;
+	delete x;
+}
+
 int main() {
 
 	//testNaiveMatrix();
+	//testSparseMatrix();
 
 	//Homework 2
-    //HW2(250);
+	//HW2(250);
 
 	//Homework 3
 	//HW3(50);
 
 	//Homework 4
-	HW4();
+	//HW4();
 
-//	testSparseMatrix();
+	//Homework 5
+	HW5(15);
 
 	return 0;
 }

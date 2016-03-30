@@ -566,3 +566,86 @@ bool MatrixNaive::equals(Matrix *A, Matrix *M) {
 	//TODO: Implement function
 	return 0;
 }
+
+bool MatrixNaive::isDiagonalZero() {
+	return isDiagonalZero(this);
+}
+
+bool MatrixNaive::isDiagonalZero(Matrix *A) {
+	//check the matrix is square
+	if (A->getNoOfLines() != A->getNoOfColumns())
+		return true; //we return like that, even though an exception will be better
+
+	for (int i = 0; i < A->getNoOfLines(); ++i) {
+		if (fabs(A->getElementAt(i, i)) < epsilon) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+Matrix *MatrixNaive::strictSuperiorPart() {
+	return strictSuperiorPart(this);
+}
+
+Matrix *MatrixNaive::strictSuperiorPart(Matrix *A) {
+	if (!A->isDiagonalZero()) {
+		MatrixNaive *x = new MatrixNaive(A->getNoOfLines(), 1);
+
+		for (int line = 0; line < A->getNoOfLines(); ++line) {
+			for (int column = line + 1; column < A->getNoOfColumns(); ++column) {
+				x->setElementAt(line, column, A->getElementAt(line, column));
+			}
+		}
+
+		return x;
+	}
+	else {
+		printf("We can't return the superior triangular elements of a non-square matrix!\n");
+		return nullptr;
+	}
+}
+
+Matrix *MatrixNaive::diagonal() {
+	return diagonal(this);
+}
+
+Matrix *MatrixNaive::diagonal(Matrix *A) {
+	if (!A->isDiagonalZero()) {
+		MatrixNaive *x = new MatrixNaive(A->getNoOfLines(), 1);
+
+		for (int i = 0; i < A->getNoOfLines(); ++i) {
+			x->setElementAt(i, i, A->getElementAt(i, i));
+		}
+
+		return x;
+	}
+	else {
+		printf("We can't return the diagonal elements of a non-square matrix!\n");
+		return nullptr;
+	}
+}
+
+Matrix *MatrixNaive::strictInferiorPart() {
+	return strictInferiorPart(this);
+}
+
+Matrix *MatrixNaive::strictInferiorPart(Matrix *A) {
+	if (!A->isDiagonalZero()) {
+		MatrixNaive *x = new MatrixNaive(A->getNoOfLines(), 1);
+
+		for (int line = 0; line < A->getNoOfLines(); ++line) {
+			for (int column = 0; column < line; ++column) {
+				x->setElementAt(line, column, A->getElementAt(line, column));
+			}
+		}
+
+		return x;
+	}
+	else {
+		printf("We can't return the inferior triangular elements of a non-square matrix!\n");
+		return nullptr;
+	}
+}

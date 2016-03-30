@@ -248,6 +248,51 @@ public:
 	virtual Matrix *multiply(Matrix *matrix1, Matrix *matrix2) = 0;
 
 	/*
+	 * Get the strict superior triangular elements of this matrix
+	 *
+	 * @return a matrix that contains only the elements above the main diagonal or null, if the matrix is not square
+	 */
+	virtual Matrix *strictSuperiorPart() = 0;
+
+	/*
+	 * Get the strict superior triangular elements of the matrix
+	 *
+	 * @param A - the matrix
+	 * @return a matrix that contains only the elements above the main diagonal or null, if the matrix is not square
+	 */
+	virtual Matrix *strictSuperiorPart(Matrix *A) = 0;
+
+	/*
+	 * Get the diagonal of this matrix
+	 *
+	 * @return a matrix that contains the diagonal of this matrix or null, if the matrix is not square
+	 */
+	virtual Matrix *diagonal() = 0;
+
+	/*
+	 * Get the diagonal of the matrix
+	 *
+	 * @param A - the matrix
+	 * @return a matrix that contains the diagonal of this matrix or null, if the matrix is not square
+	 */
+	virtual Matrix *diagonal(Matrix *A) = 0;
+
+	/*
+	 * Get the strict inferior triangular elements of this matrix
+	 *
+	 * @return a matrix that contains only the elements below the main diagonal or null, if the matrix is not square
+	 */
+	virtual Matrix *strictInferiorPart() = 0;
+
+	/*
+	 * Get the strict inferior triangular elements of the matrix
+	 *
+	 * @param A - the matrix
+	 * @return a matrix that contains only the elements below the main diagonal or null, if the matrix is not square
+	 */
+	virtual Matrix *strictInferiorPart(Matrix *A) = 0;
+
+	/*
 	The QR decomposition algorithm applied for the current matrix (only for square matrices)
 	Q is an orthogonal matrix (transpose(Q) * Q = Q * transpose(Q) = In)
 	R is a superior triangular matrix
@@ -334,6 +379,21 @@ public:
 	@return the determinant of a superior triangular matrix
 	*/
 	virtual double superiorTriangularMatrixDeterminant(Matrix *A) = 0;
+
+	/*
+	 * Check the diagonal of this matrix to see if it contains 0's
+	 *
+	 * @return true if the matrix's diagonal contains at least a 0, false otherwise
+	 */
+	virtual bool isDiagonalZero() = 0;
+
+	/*
+	 * Check the diagonal of the matrix to see if it contains 0's
+	 *
+	 * @param the matrix whose diagonal we want to check
+	 * @return true if the matrix's diagonal contains at least a 0, false otherwise
+	 */
+	virtual bool isDiagonalZero(Matrix *A) = 0;
 
 	/**
 	 * The Gauss Elimination method

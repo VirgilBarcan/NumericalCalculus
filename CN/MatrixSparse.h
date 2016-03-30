@@ -48,6 +48,15 @@ public:
     Matrix *multiply(Matrix *matrix) override;
     Matrix *multiply(Matrix *matrix1, Matrix *matrix2) override;
 
+    virtual Matrix *strictSuperiorPart() override;
+    virtual Matrix *strictSuperiorPart(Matrix *A) override;
+
+    virtual Matrix *diagonal() override;
+    virtual Matrix *diagonal(Matrix *A) override;
+
+    virtual Matrix *strictInferiorPart() override;
+    virtual Matrix *strictInferiorPart(Matrix *A) override;
+
     void qrDecomposition(Matrix *b, Matrix **Q, Matrix **R) override;
     void qrDecomposition(Matrix *A, Matrix *b, Matrix **Q, Matrix **R) override;
 
@@ -60,6 +69,9 @@ public:
     double superiorTriangularMatrixDeterminant() override;
     double superiorTriangularMatrixDeterminant(Matrix *A) override;
 
+    virtual bool isDiagonalZero() override;
+    virtual bool isDiagonalZero(Matrix *A) override;
+
     virtual bool gaussEliminationMethod(Matrix *b, Matrix *R, Matrix *B) override;
     virtual bool gaussEliminationMethod(Matrix *A, Matrix *b, Matrix *R, Matrix *B) override;
 
@@ -69,6 +81,9 @@ public:
     void setStoreType(StoreType storeType);
     StoreType getStoreType();
     std::map<int, double> getListElements(int lineOrColumn);
+
+    Matrix *sorMethod(Matrix *b);
+    Matrix *sorMethod(Matrix *A, Matrix *b);
 
     bool equals(Matrix *M) override;
     bool equals(Matrix *A, Matrix *M) override;
