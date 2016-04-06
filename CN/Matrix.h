@@ -396,6 +396,23 @@ public:
 	virtual bool isDiagonalZero(Matrix *A) = 0;
 
 	/**
+	 * Check if this matrix is symmetric
+	 * A matrix is symmetric if A = A^T, where A^T is the transpose
+	 *
+	 * @return true if the matrix is symmetric, false otherwise
+	 */
+	virtual bool isSymmetric() = 0;
+
+	/**
+	 * Check if the given matrix is symmetric
+	 * A matrix is symmetric if A = A^T, where A^T is the transpose
+	 *
+	 * @param A the matrix to check
+	 * @return true if the matrix is symmetric, false otherwise
+	 */
+	virtual bool isSymmetric(Matrix *A) = 0;
+
+	/**
 	 * The Gauss Elimination method
 	 * It is applied to the extended matrix composed by this matrix and In and gives back the R and B matrices
 	 *

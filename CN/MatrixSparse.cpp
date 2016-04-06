@@ -604,3 +604,22 @@ Matrix *MatrixSparse::sorMethod(Matrix *A, Matrix *b) {
         return nullptr;
     }
 }
+
+bool MatrixSparse::isSymmetric() {
+    return isSymmetric(this);
+}
+
+bool MatrixSparse::isSymmetric(Matrix *A) {
+
+    printf("A:\n%s\n", A->toString().c_str());
+
+    for (int line = 0; line < A->getNoOfLines(); ++line) {
+        for (auto p : ((MatrixSparse*) A)->getListElements(line)) {
+            if (A->getElementAt(line, p.first) != A->getElementAt(p.first, line)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}

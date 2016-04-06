@@ -382,8 +382,8 @@ void HW5(int p) {
 	MatrixSparse *b = new MatrixSparse(); b->setStoreType(COLUMN); A->setEpsilon(epsilon);
 	MatrixSparse *x = new MatrixSparse();
 
-	A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/5/m_rar_2016_1_mat.txt");
-	b->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/5/m_rar_2016_1_vect.txt");
+	A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/5/m_rar_2016_4_mat.txt");
+	b->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/5/m_rar_2016_4_vect.txt");
 
 	x = reinterpret_cast<MatrixSparse*>(A->sorMethod(b));
 	printf("x=\n%s\n", x->toString().c_str());
@@ -402,6 +402,114 @@ void HW5(int p) {
 	delete Ax;
 }
 
+//A and B should be vectors with the same size
+double scalarProduct(Matrix *A, Matrix *B) {
+	double result = 0.0;
+
+	for (int i = 0; i < A->getNoOfLines(); ++i) {
+		result += A->getElementAt(i, 0) * B->getElementAt(i, 0);
+	}
+
+	return result;
+}
+
+bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
+	bool result = true;
+
+	double lambda;
+	int k;
+	int k_max = 1000000;
+
+	//pick v randomly, but with ||v|| = 1
+	MatrixSparse *v = new MatrixSparse(A->getNoOfLines(), 1); v->setStoreType(COLUMN);
+	v->generateRandomMatrixValues(0.1, 1);
+
+	double norm = VectorialNorm::EuclideanNorm(v);
+
+	for (int line = 0; line < v->getNoOfLines(); ++line) {
+		v->setElementAt(line, 0, v->getElementAt(line, 0) / norm);
+	}
+
+	printf("v:\n%s\n", v->toString().c_str());
+
+	MatrixSparse *w = new MatrixSparse(A->getNoOfLines(), 1); w->setStoreType(COLUMN);
+	w = reinterpret_cast<MatrixSparse*>(A->multiply(v));
+
+	printf("w:\n%s\n", w->toString().c_str());
+
+	MatrixSparse *lambdaV = new MatrixSparse(A->getNoOfLines(), 1); lambdaV->setStoreType(COLUMN);
+
+	lambda = scalarProduct(w, v);
+	printf("lambda = %f\n", lambda);
+
+	k = 0;
+
+	do {
+		//v = w/norm(w)
+		norm = VectorialNorm::EuclideanNorm(w);
+		for (int line = 0; line < v->getNoOfLines(); ++line) {
+			v->setElementAt(line, 0, w->getElementAt(line, 0) / norm);
+		}
+
+		//w = A * v
+		w = reinterpret_cast<MatrixSparse*>(A->multiply(v));
+
+		//lambda = (w, v)
+		lambda = scalarProduct(w, v);
+
+		k++;
+
+		//calculate lambda * v
+		lambdaV = reinterpret_cast<MatrixSparse*>(v->clone());
+		for (int line = 0; line < lambdaV->getNoOfLines(); ++line) {
+			lambdaV->setElementAt(line, 0, lambdaV->getElementAt(line, 0) * lambda);
+		}
+
+		norm = VectorialNorm::EuclideanNorm(w->subtract(lambdaV));
+	} while (norm > A->getNoOfLines() * A->getEpsilon() && k <= k_max);
+
+	if (k > k_max) {
+		//we don't have an eigenvalue
+		result = false;
+	}
+
+	if (norm <= A->getNoOfLines() * A->getEpsilon()) {
+		//we have an eigenvalue and an eigenvector
+		eigenvalue = lambda;
+
+		for (int line = 0; line < v->getNoOfLines(); ++line) {
+			(*eigenvector)->setElementAt(line, 0, v->getElementAt(line, 0));
+		}
+	}
+
+	delete v;
+	delete w;
+	delete lambdaV;
+
+	return result;
+}
+
+void HW6(int p) {
+	double epsilon = pow(10, -p);
+	MatrixSparse *A = new MatrixSparse(3, 3); A->setStoreType(LINE); A->setEpsilon(epsilon);
+
+	A->setElementAt(0, 0, 1); A->setElementAt(0, 1, 2); A->setElementAt(0, 2, 3);
+	A->setElementAt(1, 0, 2); A->setElementAt(1, 1, 1); A->setElementAt(1, 2, 3);
+	A->setElementAt(2, 0, 3); A->setElementAt(2, 1, 3); A->setElementAt(2, 2, 1);
+
+	printf("Is A symmetric? %s\n", A->isSymmetric() ? "yes" : "no");
+
+	double eigenvalue;
+	MatrixSparse *eigenvector = new MatrixSparse(A->getNoOfLines(), 1); eigenvector->setStoreType(COLUMN);
+	powerMethod(A, eigenvalue, reinterpret_cast<Matrix**>(&eigenvector));
+
+	printf("Eigenvalue: %f\n\n", eigenvalue);
+	printf("Eigenvector:\n%s\n", eigenvector->toString().c_str());
+
+	delete A;
+	delete eigenvector;
+}
+
 int main() {
 
 	//testNaiveMatrix();
@@ -417,7 +525,10 @@ int main() {
 	//HW4();
 
 	//Homework 5
-	HW5(15);
+	//HW5(8);
+
+	//Homework 6
+	HW6(8);
 
 	return 0;
 }

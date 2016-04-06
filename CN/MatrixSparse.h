@@ -75,6 +75,9 @@ public:
     virtual bool gaussEliminationMethod(Matrix *b, Matrix *R, Matrix *B) override;
     virtual bool gaussEliminationMethod(Matrix *A, Matrix *b, Matrix *R, Matrix *B) override;
 
+    bool isSymmetric() override;
+    bool isSymmetric(Matrix *A) override;
+
     Matrix *clone() override;
     Matrix *clone(Matrix *M) override;
 

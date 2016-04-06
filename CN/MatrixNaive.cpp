@@ -649,3 +649,11 @@ Matrix *MatrixNaive::strictInferiorPart(Matrix *A) {
 		return nullptr;
 	}
 }
+
+bool MatrixNaive::isSymmetric() {
+	return false;
+}
+
+bool MatrixNaive::isSymmetric(Matrix *A) {
+	return false;
+}

@@ -16,16 +16,30 @@ public:
 		double norm = 0.0;
 
 		//check that we got a vector and not a matrix
-		if (x != nullptr && x->getNoOfColumns() == 1 && x->getNoOfLines() != 1) {
-			norm = -1;
+		if (x != nullptr) {
+			if (x->getNoOfLines() == 1 && x->getNoOfColumns() != 1) {
+				//calculate the norm for a line vector
+				for (int i = 0; i < x->getNoOfColumns(); ++i) {
+					norm += pow(x->getElementAt(i, 0), 2);
+				}
+
+				norm = sqrt(norm);
+			}
+			else if (x->getNoOfLines() != 1 && x->getNoOfColumns() == 1) {
+				//calculate the norm for a column vector
+				for (int i = 0; i < x->getNoOfLines(); ++i) {
+					norm += pow(x->getElementAt(i, 0), 2);
+				}
+
+				norm = sqrt(norm);
+			}
+			else {
+				//matrix
+				norm = -1;
+			}
 		}
 		else {
-			//calculate the norm
-			for (int i = 0; i < x->getNoOfColumns(); ++i) {
-				norm += pow(x->getElementAt(i, 0), 2);
-			}
-
-			norm = sqrt(norm);
+			norm = -1;
 		}
 
 		return norm;
