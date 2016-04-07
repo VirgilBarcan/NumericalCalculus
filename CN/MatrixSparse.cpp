@@ -233,7 +233,7 @@ Matrix *MatrixSparse::subtract(Matrix *matrix2) {
 Matrix *MatrixSparse::subtract(Matrix *matrix1, Matrix *matrix2) {
     if (checkEqualSizes(matrix1, matrix2)) {
         if (((MatrixSparse *) matrix1)->getStoreType() == LINE && ((MatrixSparse *) matrix1)->getStoreType() == LINE) {
-            MatrixSparse *difference = new MatrixSparse(matrix1->getNoOfLines(), matrix1->getNoOfLines());
+            MatrixSparse *difference = new MatrixSparse(matrix1->getNoOfLines(), matrix1->getNoOfColumns());
             difference->setStoreType(LINE);
 
             for (int line = 0; line < matrix1->getNoOfLines(); ++line) {
@@ -255,22 +255,22 @@ Matrix *MatrixSparse::subtract(Matrix *matrix1, Matrix *matrix2) {
         }
 
         if (((MatrixSparse *) matrix1)->getStoreType() == COLUMN && ((MatrixSparse *) matrix1)->getStoreType() == COLUMN) {
-            MatrixSparse *difference = new MatrixSparse(matrix1->getNoOfLines(), matrix1->getNoOfLines());
-            difference->setStoreType(LINE);
+            MatrixSparse *difference = new MatrixSparse(matrix1->getNoOfLines(), matrix1->getNoOfColumns());
+            difference->setStoreType(COLUMN);
 
             for (int column = 0; column < matrix1->getNoOfColumns(); ++column) {
                 //go through the elements of the column
                 for (auto p : ((MatrixSparse *) matrix1)->getListElements(column)) { //fancy auto :) (std::pair<int, double>)
-                    difference->setElementAt(column, p.first,
-                                             matrix1->getElementAt(column, p.first) - matrix2->getElementAt(column, p.first));
+                    difference->setElementAt(p.first, column,
+                                             matrix1->getElementAt(p.first, column) - matrix2->getElementAt(p.first, column));
                 }
             }
 
             for (int column = 0; column < matrix1->getNoOfColumns(); ++column) {
                 //go through the elements of the line
                 for (auto p : ((MatrixSparse *) matrix2)->getListElements(column)) { //auto hits again :) (std::pair<int, double>)
-                    difference->setElementAt(column, p.first,
-                                             matrix1->getElementAt(column, p.first) - matrix2->getElementAt(column, p.first));
+                    difference->setElementAt(p.first, column,
+                                             matrix1->getElementAt(p.first, column) - matrix2->getElementAt(p.first, column));
                 }
             }
             return difference;

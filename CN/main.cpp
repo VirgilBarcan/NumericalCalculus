@@ -416,13 +416,15 @@ double scalarProduct(Matrix *A, Matrix *B) {
 bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 	bool result = true;
 
-	double lambda;
+	double lambdaK;
+	double lambdaKPlusOne;
 	int k;
 	int k_max = 1000000;
 
 	//pick v randomly, but with ||v|| = 1
 	MatrixSparse *v = new MatrixSparse(A->getNoOfLines(), 1); v->setStoreType(COLUMN);
 	v->generateRandomMatrixValues(0.1, 1);
+//	v->setElementAt(0, 0, 1); v->setElementAt(1, 0, 0); v->setElementAt(2, 0, 0);
 
 	double norm = VectorialNorm::EuclideanNorm(v);
 
@@ -439,34 +441,53 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 
 	MatrixSparse *lambdaV = new MatrixSparse(A->getNoOfLines(), 1); lambdaV->setStoreType(COLUMN);
 
-	lambda = scalarProduct(w, v);
-	printf("lambda = %f\n", lambda);
+	lambdaK = scalarProduct(w, v);
+	printf("lambda = %f\n", lambdaK);
 
 	k = 0;
 
 	do {
-		//v = w/norm(w)
+		printf("======= %d\n", k);
+		//lambdaV = v(k)
+		lambdaV = reinterpret_cast<MatrixSparse*>(v->clone());
+
+		printf("v(k):\n%s\n", lambdaV->toString().c_str());
+
+		//v(k+1) = w/norm(w)
 		norm = VectorialNorm::EuclideanNorm(w);
 		for (int line = 0; line < v->getNoOfLines(); ++line) {
 			v->setElementAt(line, 0, w->getElementAt(line, 0) / norm);
 		}
 
-		//w = A * v
+		printf("v(k+1):\n%s\n", v->toString().c_str());
+
+		//w = A * v(k+1)
 		w = reinterpret_cast<MatrixSparse*>(A->multiply(v));
 
-		//lambda = (w, v)
-		lambda = scalarProduct(w, v);
+		printf("w:\n%s\n", w->toString().c_str());
+
+		//lambda(k+1) = (w, v(k+1))
+		lambdaKPlusOne = scalarProduct(w, v);
+
+		printf("lambda_k = %f\n", lambdaK);
+		printf("lambda_k+1 = %f\n\n\n", lambdaKPlusOne);
 
 		k++;
 
-		//calculate lambda * v
-		lambdaV = reinterpret_cast<MatrixSparse*>(v->clone());
+		//calculate lambda * v(k)
 		for (int line = 0; line < lambdaV->getNoOfLines(); ++line) {
-			lambdaV->setElementAt(line, 0, lambdaV->getElementAt(line, 0) * lambda);
+			lambdaV->setElementAt(line, 0, lambdaV->getElementAt(line, 0) * lambdaK);
 		}
 
 		norm = VectorialNorm::EuclideanNorm(w->subtract(lambdaV));
+
+		lambdaK = lambdaKPlusOne;
+
 	} while (norm > A->getNoOfLines() * A->getEpsilon() && k <= k_max);
+
+	printf("norm = %.16f\n", norm);
+	printf("k = %d\n", k);
+	printf("v:\n%s\n", v->toString().c_str());
 
 	if (k > k_max) {
 		//we don't have an eigenvalue
@@ -475,7 +496,7 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 
 	if (norm <= A->getNoOfLines() * A->getEpsilon()) {
 		//we have an eigenvalue and an eigenvector
-		eigenvalue = lambda;
+		eigenvalue = lambdaKPlusOne;
 
 		for (int line = 0; line < v->getNoOfLines(); ++line) {
 			(*eigenvector)->setElementAt(line, 0, v->getElementAt(line, 0));
@@ -505,6 +526,18 @@ void HW6(int p) {
 
 	printf("Eigenvalue: %f\n\n", eigenvalue);
 	printf("Eigenvector:\n%s\n", eigenvector->toString().c_str());
+
+	printf("A*u:\n%s\n", A->multiply(eigenvector)->toString().c_str());
+
+//	MatrixSparse *x = new MatrixSparse(3, 1); x->setStoreType(COLUMN);
+//	x->setElementAt(0, 0, 1); x->setElementAt(1, 0, 1); x->setElementAt(2, 0, 1);
+//
+//	MatrixSparse *y = new MatrixSparse(3, 1); x->setStoreType(COLUMN);
+//	y->setElementAt(0, 0, 2); y->setElementAt(1, 0, 3); y->setElementAt(2, 0, 4);
+//
+//	printf("x:\n%s\n", x->toString().c_str());
+//	printf("y:\n%s\n", y->toString().c_str());
+//	printf("x-y:\n%s\n", x->subtract(y)->toString().c_str());
 
 	delete A;
 	delete eigenvector;
