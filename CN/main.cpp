@@ -432,7 +432,7 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 	v->generateRandomMatrixValues(0.1, 1);
 //	v->setElementAt(0, 0, 1); v->setElementAt(1, 0, 0); v->setElementAt(2, 0, 0);
 	end = clock();
-	printf("generate took: %d\n", (end - begin) / CLOCKS_PER_SEC);
+//	printf("generate took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 
 	double norm = VectorialNorm::EuclideanNorm(v);
 
@@ -446,7 +446,7 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 	MatrixSparse *w = new MatrixSparse(A->getNoOfLines(), 1); w->setStoreType(COLUMN);
 	w = reinterpret_cast<MatrixSparse*>(A->multiply(v));
 	end = clock();
-	printf("w = A * v took: %d\n", (end - begin) / CLOCKS_PER_SEC);
+//	printf("w = A * v took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 	//printf("w:\n%s\n", w->toString().c_str());
 
 	MatrixSparse *lambdaV = new MatrixSparse(A->getNoOfLines(), 1); lambdaV->setStoreType(COLUMN);
@@ -462,7 +462,7 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 		begin = clock();
 		lambdaV = reinterpret_cast<MatrixSparse*>(v->clone());
 		end = clock();
-		printf("clone took: %d\n", (end - begin) / CLOCKS_PER_SEC);
+//		printf("clone took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 
 		//printf("v(k):\n%s\n", lambdaV->toString().c_str());
 
@@ -473,7 +473,7 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 			v->setElementAt(line, 0, w->getElementAt(line, 0) / norm);
 		}
 		end = clock();
-		printf("Euclidean Norm took: %d\n", (end - begin) / CLOCKS_PER_SEC);
+//		printf("Euclidean Norm took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 
 		//printf("v(k+1):\n%s\n", v->toString().c_str());
 
@@ -481,7 +481,7 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 		begin = clock();
 		w = reinterpret_cast<MatrixSparse*>(A->multiply(v));
 		end = clock();
-		printf("w = A * v took: %d\n", (end - begin) / CLOCKS_PER_SEC);
+//		printf("w = A * v took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 
 		//printf("w:\n%s\n", w->toString().c_str());
 
@@ -501,7 +501,7 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 		begin = clock();
 		norm = VectorialNorm::EuclideanNorm(w->subtract(lambdaV));
 		end = clock();
-		printf("Euclidean Norm took: %d\n", (end - begin) / CLOCKS_PER_SEC);
+//		printf("Euclidean Norm took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 
 		lambdaK = lambdaKPlusOne;
 
@@ -532,27 +532,51 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 	return result;
 }
 
+MatrixSparse *generateRandomSymmetric(int noOfLines, int noOfColumns, int min, int max) {
+	MatrixSparse *A = new MatrixSparse(noOfLines, noOfColumns);
+	A->setStoreType(LINE);
+	int maxElements = 10;
+
+	std::uniform_real_distribution<double> uniform_distribution(min, max);
+	std::default_random_engine random_engine;
+
+	for (int line = 0; line < noOfLines; ++line) {
+		int noOfElements = rand() % maxElements + 1;
+		for (int i = 0; i < noOfElements; ++i) {
+			//generate random value in the interval [min, max]
+			int column = rand() % noOfColumns;
+			double value = uniform_distribution(random_engine);
+
+			A->setElementAt(line, column, value); A->setElementAt(column, line, value);
+		}
+	}
+
+	return A;
+}
+
 void HW6(int p) {
 	double epsilon = pow(10, -p);
 	MatrixSparse *A = new MatrixSparse(); A->setStoreType(LINE); A->setEpsilon(epsilon);
+	MatrixSparse *B;
 
 	//A->setElementAt(0, 0, 1); A->setElementAt(0, 1, 2); A->setElementAt(0, 2, 3);
 	//A->setElementAt(1, 0, 2); A->setElementAt(1, 1, 1); A->setElementAt(1, 2, 3);
 	//A->setElementAt(2, 0, 3); A->setElementAt(2, 1, 3); A->setElementAt(2, 2, 1);
 
 	A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/6/mat_2016.txt");
-	printf("%d %d\n", A->getNoOfLines(), A->getNoOfColumns());
-
 	printf("Is A symmetric? %s\n", A->isSymmetric() ? "yes" : "no");
+
+	B = generateRandomSymmetric(10, 10, 0, 100); B->setEpsilon(epsilon);
+	printf("Is B symmetric? %s\n", B->isSymmetric() ? "yes" : "no");
 
 	double eigenvalue;
 	MatrixSparse *eigenvector = new MatrixSparse(A->getNoOfLines(), 1); eigenvector->setStoreType(COLUMN);
-	powerMethod(A, eigenvalue, reinterpret_cast<Matrix**>(&eigenvector));
-
-	printf("Eigenvalue: %f\n\n", eigenvalue);
-	printf("Eigenvector:\n%s\n", eigenvector->toString().c_str());
-
-	printf("A*u:\n%s\n", A->multiply(eigenvector)->toString().c_str());
+//	powerMethod(A, eigenvalue, reinterpret_cast<Matrix**>(&eigenvector));
+//
+//	printf("Eigenvalue: %f\n\n", eigenvalue);
+//	printf("Eigenvector:\n%s\n", eigenvector->toString().c_str());
+//
+//	printf("A*u:\n%s\n", A->multiply(eigenvector)->toString().c_str());
 
 	delete A;
 	delete eigenvector;
