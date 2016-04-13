@@ -4,7 +4,7 @@
 # include "MatrixSparse.h"
 # include "VectorialNorm.h"
 # include "MatrixNorm.h"
-# include <armadillo>
+//# include <armadillo>
 
 using namespace std;
 
@@ -95,6 +95,7 @@ void testSparseMatrix() {
 	delete P;
 }
 
+/*
 MatrixNaive *calculateB(MatrixNaive *s, MatrixNaive *A, int n) {
 	MatrixNaive *b = new MatrixNaive(n, 1);
 
@@ -401,6 +402,8 @@ void HW5(int p) {
 	delete x;
 	delete Ax;
 }
+*/
+
 
 //A and B should be vectors with the same size
 double scalarProduct(Matrix *A, Matrix *B) {
@@ -421,10 +424,15 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 	int k;
 	int k_max = 1000000;
 
+	clock_t begin, end;
+
+	begin = clock();
 	//pick v randomly, but with ||v|| = 1
 	MatrixSparse *v = new MatrixSparse(A->getNoOfLines(), 1); v->setStoreType(COLUMN);
 	v->generateRandomMatrixValues(0.1, 1);
 //	v->setElementAt(0, 0, 1); v->setElementAt(1, 0, 0); v->setElementAt(2, 0, 0);
+	end = clock();
+	printf("generate took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 
 	double norm = VectorialNorm::EuclideanNorm(v);
 
@@ -432,45 +440,56 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 		v->setElementAt(line, 0, v->getElementAt(line, 0) / norm);
 	}
 
-	printf("v:\n%s\n", v->toString().c_str());
+	//printf("v:\n%s\n", v->toString().c_str());
 
+	begin = clock();
 	MatrixSparse *w = new MatrixSparse(A->getNoOfLines(), 1); w->setStoreType(COLUMN);
 	w = reinterpret_cast<MatrixSparse*>(A->multiply(v));
-
-	printf("w:\n%s\n", w->toString().c_str());
+	end = clock();
+	printf("w = A * v took: %d\n", (end - begin) / CLOCKS_PER_SEC);
+	//printf("w:\n%s\n", w->toString().c_str());
 
 	MatrixSparse *lambdaV = new MatrixSparse(A->getNoOfLines(), 1); lambdaV->setStoreType(COLUMN);
 
 	lambdaK = scalarProduct(w, v);
-	printf("lambda = %f\n", lambdaK);
+	//printf("lambda = %f\n", lambdaK);
 
 	k = 0;
 
 	do {
-		printf("======= %d\n", k);
+		printf("======= %d %f\n", k, norm);
 		//lambdaV = v(k)
+		begin = clock();
 		lambdaV = reinterpret_cast<MatrixSparse*>(v->clone());
+		end = clock();
+		printf("clone took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 
-		printf("v(k):\n%s\n", lambdaV->toString().c_str());
+		//printf("v(k):\n%s\n", lambdaV->toString().c_str());
 
+		begin = clock();
 		//v(k+1) = w/norm(w)
 		norm = VectorialNorm::EuclideanNorm(w);
 		for (int line = 0; line < v->getNoOfLines(); ++line) {
 			v->setElementAt(line, 0, w->getElementAt(line, 0) / norm);
 		}
+		end = clock();
+		printf("Euclidean Norm took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 
-		printf("v(k+1):\n%s\n", v->toString().c_str());
+		//printf("v(k+1):\n%s\n", v->toString().c_str());
 
 		//w = A * v(k+1)
+		begin = clock();
 		w = reinterpret_cast<MatrixSparse*>(A->multiply(v));
+		end = clock();
+		printf("w = A * v took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 
-		printf("w:\n%s\n", w->toString().c_str());
+		//printf("w:\n%s\n", w->toString().c_str());
 
 		//lambda(k+1) = (w, v(k+1))
 		lambdaKPlusOne = scalarProduct(w, v);
 
-		printf("lambda_k = %f\n", lambdaK);
-		printf("lambda_k+1 = %f\n\n\n", lambdaKPlusOne);
+		//printf("lambda_k = %f\n", lambdaK);
+		//printf("lambda_k+1 = %f\n\n\n", lambdaKPlusOne);
 
 		k++;
 
@@ -479,7 +498,10 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 			lambdaV->setElementAt(line, 0, lambdaV->getElementAt(line, 0) * lambdaK);
 		}
 
+		begin = clock();
 		norm = VectorialNorm::EuclideanNorm(w->subtract(lambdaV));
+		end = clock();
+		printf("Euclidean Norm took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 
 		lambdaK = lambdaKPlusOne;
 
@@ -487,7 +509,7 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 
 	printf("norm = %.16f\n", norm);
 	printf("k = %d\n", k);
-	printf("v:\n%s\n", v->toString().c_str());
+	//printf("v:\n%s\n", v->toString().c_str());
 
 	if (k > k_max) {
 		//we don't have an eigenvalue
@@ -512,11 +534,14 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 
 void HW6(int p) {
 	double epsilon = pow(10, -p);
-	MatrixSparse *A = new MatrixSparse(3, 3); A->setStoreType(LINE); A->setEpsilon(epsilon);
+	MatrixSparse *A = new MatrixSparse(); A->setStoreType(LINE); A->setEpsilon(epsilon);
 
-	A->setElementAt(0, 0, 1); A->setElementAt(0, 1, 2); A->setElementAt(0, 2, 3);
-	A->setElementAt(1, 0, 2); A->setElementAt(1, 1, 1); A->setElementAt(1, 2, 3);
-	A->setElementAt(2, 0, 3); A->setElementAt(2, 1, 3); A->setElementAt(2, 2, 1);
+	//A->setElementAt(0, 0, 1); A->setElementAt(0, 1, 2); A->setElementAt(0, 2, 3);
+	//A->setElementAt(1, 0, 2); A->setElementAt(1, 1, 1); A->setElementAt(1, 2, 3);
+	//A->setElementAt(2, 0, 3); A->setElementAt(2, 1, 3); A->setElementAt(2, 2, 1);
+
+	A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/6/mat_2016.txt");
+	printf("%d %d\n", A->getNoOfLines(), A->getNoOfColumns());
 
 	printf("Is A symmetric? %s\n", A->isSymmetric() ? "yes" : "no");
 
@@ -528,16 +553,6 @@ void HW6(int p) {
 	printf("Eigenvector:\n%s\n", eigenvector->toString().c_str());
 
 	printf("A*u:\n%s\n", A->multiply(eigenvector)->toString().c_str());
-
-//	MatrixSparse *x = new MatrixSparse(3, 1); x->setStoreType(COLUMN);
-//	x->setElementAt(0, 0, 1); x->setElementAt(1, 0, 1); x->setElementAt(2, 0, 1);
-//
-//	MatrixSparse *y = new MatrixSparse(3, 1); x->setStoreType(COLUMN);
-//	y->setElementAt(0, 0, 2); y->setElementAt(1, 0, 3); y->setElementAt(2, 0, 4);
-//
-//	printf("x:\n%s\n", x->toString().c_str());
-//	printf("y:\n%s\n", y->toString().c_str());
-//	printf("x-y:\n%s\n", x->subtract(y)->toString().c_str());
 
 	delete A;
 	delete eigenvector;
@@ -560,8 +575,34 @@ int main() {
 	//Homework 5
 	//HW5(8);
 
+	/*
+	std::vector<std::map<int, double>> *list1 = new std::vector<std::map<int, double>>();
+	list1->push_back({ {1, 1}, {2, 2} });
+	list1->push_back({ {3, 1}, {4, 2} });
+
+	std::vector<std::map<int, double>> *list2 = new std::vector<std::map<int, double>>(*list1);
+
+	list1->push_back({ {5, 1} });
+	list2->push_back({ {6, 1} });
+
+	for (auto it = list1->begin(); it != list1->end(); ++it) {
+		for (auto it2 = it->begin(); it2 != it->end(); ++it2) {
+			printf("%d %f\n", it2->first, it2->second);
+		}
+		printf("\n");
+	}
+
+	printf("\n\n");
+
+	for (auto it = list2->begin(); it != list2->end(); ++it) {
+		for (auto it2 = it->begin(); it2 != it->end(); ++it2) {
+			printf("%d %f\n", it2->first, it2->second);
+		}
+	}
+	*/
+
 	//Homework 6
-	HW6(8);
+	HW6(3);
 
 	return 0;
 }

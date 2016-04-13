@@ -85,6 +85,9 @@ public:
     StoreType getStoreType();
     std::map<int, double> getListElements(int lineOrColumn);
 
+    void setList(std::vector<std::map<int, double>> *list);
+    std::vector<std::map<int, double>> *getList();
+
     Matrix *sorMethod(Matrix *b);
     Matrix *sorMethod(Matrix *A, Matrix *b);
 
