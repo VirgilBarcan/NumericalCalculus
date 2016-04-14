@@ -157,6 +157,9 @@
     <ClInclude Include="MatrixSparse.h" />
     <ClInclude Include="VectorialNorm.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="m_rar_sim_2016.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

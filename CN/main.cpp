@@ -66,8 +66,14 @@ void testSparseMatrix() {
 
 	printf("x:\n%s\n", x->toString().c_str());
 
+	printf("A:\n%s\n", A->toString().c_str());
+	printf("B:\n%s\n", B_line->toString().c_str());
+
 	S = reinterpret_cast<MatrixSparse*>(A->add(B_line));
 	printf("A+B:\n%s\n", S->toString().c_str());
+
+	S = reinterpret_cast<MatrixSparse*>(B_column->subtract(B_column));
+	printf("B-B:\n%s\n", S->toString().c_str());
 
 	S = reinterpret_cast<MatrixSparse*>(A->add(B_column));
 	printf("A+B:\n%s\n", S->toString().c_str());
@@ -89,6 +95,7 @@ void testSparseMatrix() {
 	delete P;
 }
 
+/*
 MatrixNaive *calculateB(MatrixNaive *s, MatrixNaive *A, int n) {
 	MatrixNaive *b = new MatrixNaive(n, 1);
 
@@ -270,22 +277,22 @@ void HW3(int n) {
 	//random matrix
 	A->generateRandomMatrixValues(-100, 100);
 
-	/*for (int i = 0; i < n; ++i)
-		A->setElementAt(0, i, 3.0),
-		A->setElementAt(1, i, 6.0);*/
+	//for (int i = 0; i < n; ++i)
+	//	A->setElementAt(0, i, 3.0),
+	//	A->setElementAt(1, i, 6.0);
 
-	printf("A:\n%s\n", A->toString().c_str());
-
-	inverse = reinterpret_cast<MatrixNaive*>(A->inverse());
-	printf("A^(-1):\n%s\n", inverse->toString().c_str());
-
-	double norm = MatrixNorm::MaximumColumnSumNorm(A->multiply(inverse)->subtract(I));
-	printf("||A*A^(-1) - I|| = %.32f\n", norm);
-
-	delete A;
-	delete I;
-	delete inverse;
-}
+//	printf("A:\n%s\n", A->toString().c_str());
+//
+//	inverse = reinterpret_cast<MatrixNaive*>(A->inverse());
+//	printf("A^(-1):\n%s\n", inverse->toString().c_str());
+//
+//	double norm = MatrixNorm::MaximumColumnSumNorm(A->multiply(inverse)->subtract(I));
+//	printf("||A*A^(-1) - I|| = %.32f\n", norm);
+//
+//	delete A;
+//	delete I;
+//	delete inverse;
+//}
 
 void HW4() {
 	double epsilon = 0.0001;
@@ -374,20 +381,317 @@ void HW4() {
 	delete AoriBx;
 }
 
+
+void HW5(int p) {
+	double epsilon = pow(10, -p);
+	MatrixSparse *A = new MatrixSparse(); A->setStoreType(LINE); A->setEpsilon(epsilon);
+	MatrixSparse *b = new MatrixSparse(); b->setStoreType(COLUMN); A->setEpsilon(epsilon);
+	MatrixSparse *x = new MatrixSparse();
+
+	A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/5/m_rar_2016_4_mat.txt");
+	b->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/5/m_rar_2016_4_vect.txt");
+
+	x = reinterpret_cast<MatrixSparse*>(A->sorMethod(b));
+	printf("x=\n%s\n", x->toString().c_str());
+
+	MatrixSparse *Ax = new MatrixSparse();
+	Ax = reinterpret_cast<MatrixSparse*>(A->multiply(x));
+	//printf("b=\n%s\n", b->toString().c_str());
+	//printf("Ax=\n%s\n", Ax->toString().c_str());
+
+	double norm = MatrixNorm::MaximumRowSumNormSparse(reinterpret_cast<MatrixSparse*>(Ax->subtract(b)));
+	printf("||Ax - b|| = %.16f\n", norm);
+
+	delete A;
+	delete b;
+	delete x;
+	delete Ax;
+}
+*/
+
+
+//A and B should be vectors with the same size
+double scalarProduct(Matrix *A, Matrix *B) {
+	double result = 0.0;
+
+	for (int i = 0; i < A->getNoOfLines(); ++i) {
+		result += A->getElementAt(i, 0) * B->getElementAt(i, 0);
+	}
+
+	return result;
+}
+
+bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
+	bool result = true;
+
+	double lambdaK;
+	double lambdaKPlusOne;
+	int k;
+	int k_max = 1000000;
+
+	clock_t begin, end;
+
+	begin = clock();
+	//pick v randomly, but with ||v|| = 1
+	MatrixSparse *v = new MatrixSparse(A->getNoOfLines(), 1); v->setStoreType(COLUMN);
+	v->generateRandomMatrixValues(0.1, 1);
+//	v->setElementAt(0, 0, 1); v->setElementAt(1, 0, 0); v->setElementAt(2, 0, 0);
+	end = clock();
+//	printf("generate took: %d\n", (end - begin) / CLOCKS_PER_SEC);
+
+	double norm = VectorialNorm::EuclideanNorm(v);
+
+	for (int line = 0; line < v->getNoOfLines(); ++line) {
+		v->setElementAt(line, 0, v->getElementAt(line, 0) / norm);
+	}
+
+	//printf("v:\n%s\n", v->toString().c_str());
+
+	begin = clock();
+	MatrixSparse *w = new MatrixSparse(A->getNoOfLines(), 1); w->setStoreType(COLUMN);
+	w = reinterpret_cast<MatrixSparse*>(A->multiply(v));
+	end = clock();
+//	printf("w = A * v took: %d\n", (end - begin) / CLOCKS_PER_SEC);
+	//printf("w:\n%s\n", w->toString().c_str());
+
+	MatrixSparse *lambdaV = new MatrixSparse(A->getNoOfLines(), 1); lambdaV->setStoreType(COLUMN);
+
+	lambdaK = scalarProduct(w, v);
+	//printf("lambda = %f\n", lambdaK);
+
+	k = 0;
+
+	do {
+		printf("======= %d %f\n", k, norm);
+		//lambdaV = v(k)
+		begin = clock();
+		lambdaV = reinterpret_cast<MatrixSparse*>(v->clone());
+		end = clock();
+//		printf("clone took: %d\n", (end - begin) / CLOCKS_PER_SEC);
+
+		//printf("v(k):\n%s\n", lambdaV->toString().c_str());
+
+		begin = clock();
+		//v(k+1) = w/norm(w)
+		norm = VectorialNorm::EuclideanNorm(w);
+		for (int line = 0; line < v->getNoOfLines(); ++line) {
+			v->setElementAt(line, 0, w->getElementAt(line, 0) / norm);
+		}
+		end = clock();
+//		printf("Euclidean Norm took: %d\n", (end - begin) / CLOCKS_PER_SEC);
+
+		//printf("v(k+1):\n%s\n", v->toString().c_str());
+
+		//w = A * v(k+1)
+		begin = clock();
+		w = reinterpret_cast<MatrixSparse*>(A->multiply(v));
+		end = clock();
+//		printf("w = A * v took: %d\n", (end - begin) / CLOCKS_PER_SEC);
+
+		//printf("w:\n%s\n", w->toString().c_str());
+
+		//lambda(k+1) = (w, v(k+1))
+		lambdaKPlusOne = scalarProduct(w, v);
+
+		//printf("lambda_k = %f\n", lambdaK);
+		//printf("lambda_k+1 = %f\n\n\n", lambdaKPlusOne);
+
+		k++;
+
+		//calculate lambda * v(k)
+		for (int line = 0; line < lambdaV->getNoOfLines(); ++line) {
+			lambdaV->setElementAt(line, 0, lambdaV->getElementAt(line, 0) * lambdaK);
+		}
+
+		begin = clock();
+		norm = VectorialNorm::EuclideanNorm(w->subtract(lambdaV));
+		end = clock();
+//		printf("Euclidean Norm took: %d\n", (end - begin) / CLOCKS_PER_SEC);
+
+		lambdaK = lambdaKPlusOne;
+
+	} while (norm > A->getNoOfLines() * A->getEpsilon() && k <= k_max);
+
+	printf("norm = %.16f\n", norm);
+	printf("k = %d\n", k);
+	//printf("v:\n%s\n", v->toString().c_str());
+
+	if (k > k_max) {
+		//we don't have an eigenvalue
+		result = false;
+	}
+
+	if (norm <= A->getNoOfLines() * A->getEpsilon()) {
+		//we have an eigenvalue and an eigenvector
+		eigenvalue = lambdaKPlusOne;
+
+		for (int line = 0; line < v->getNoOfLines(); ++line) {
+			(*eigenvector)->setElementAt(line, 0, v->getElementAt(line, 0));
+		}
+	}
+
+	delete v;
+	delete w;
+	delete lambdaV;
+
+	return result;
+}
+
+MatrixSparse *generateRandomSymmetric(int noOfLines, int noOfColumns, int min, int max) {
+	MatrixSparse *A = new MatrixSparse(noOfLines, noOfColumns);
+	A->setStoreType(LINE);
+	int maxElements = 10;
+
+	std::uniform_real_distribution<double> uniform_distribution(min, max);
+	std::default_random_engine random_engine;
+
+	for (int line = 0; line < noOfLines; ++line) {
+		int noOfElements = rand() % maxElements + 1;
+		for (int i = 0; i < noOfElements; ++i) {
+			//generate random value in the interval [min, max]
+			int column = rand() % noOfColumns;
+			double value = uniform_distribution(random_engine);
+
+			A->setElementAt(line, column, value); A->setElementAt(column, line, value);
+		}
+	}
+
+	return A;
+}
+
+void HW6(int p) {
+	double epsilon = pow(10, -p);
+	MatrixSparse *A = new MatrixSparse(); A->setStoreType(LINE); A->setEpsilon(epsilon);
+	MatrixSparse *B;
+
+	//A->setElementAt(0, 0, 1); A->setElementAt(0, 1, 2); A->setElementAt(0, 2, 3);
+	//A->setElementAt(1, 0, 2); A->setElementAt(1, 1, 1); A->setElementAt(1, 2, 3);
+	//A->setElementAt(2, 0, 3); A->setElementAt(2, 1, 3); A->setElementAt(2, 2, 1);
+
+	//A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/6/mat_2016.txt");
+	A->getFromFile("m_rar_sim_2016.txt");	
+	printf("Is A symmetric? %s\n", A->isSymmetric() ? "yes" : "no");
+
+	B = generateRandomSymmetric(10, 10, 0, 100); B->setEpsilon(epsilon);
+	printf("Is B symmetric? %s\n", B->isSymmetric() ? "yes" : "no");
+
+	double eigenvalue;
+	MatrixSparse *eigenvector = new MatrixSparse(A->getNoOfLines(), 1); eigenvector->setStoreType(COLUMN);
+//	powerMethod(A, eigenvalue, reinterpret_cast<Matrix**>(&eigenvector));
+//
+//	printf("Eigenvalue: %f\n\n", eigenvalue);
+//	printf("Eigenvector:\n%s\n", eigenvector->toString().c_str());
+//
+//	printf("A*u:\n%s\n", A->multiply(eigenvector)->toString().c_str());
+
+	delete A;
+	delete eigenvector;
+}
+
+void HW6_SVD(int p, int n) {
+	double epsilon = pow(10, -8);
+
+	if (p <= n) {
+		printf("p should be greater than n\n");
+		return;
+	}
+	if (p * n > 36 * 36) {
+		printf("p * n should be less than %d\n", 36 * 36);
+		return;
+	}
+
+	arma::mat A = arma::randu<arma::mat>(p, n);
+	arma::mat U;
+	arma::vec s;
+	arma::mat V;
+
+	arma::svd(U, s, V, A);
+
+	bool bSMax = false, bSMin = false, bOld = false;
+	double smax, smin, old;
+
+	size_t rang = 0;
+	printf("Valorile singulare ale matricii A: ");
+	for (int i = 0; i < s.size(); ++i) {
+		printf("%.4f ", s.at(i));
+
+		if (fabs(s.at(i) - 1.0f) > epsilon)
+		{
+			old = s.at(i);
+			bOld = true;
+
+			if (!bSMax) {
+				bSMax = true;
+				smax = s.at(i);
+			}
+
+			++rang;
+		}
+		else {
+			if (!bSMin) {			
+				bSMin = true;
+				smin = old;
+			}
+		}
+	}
+
+	printf("\nRangul matricii A: %d", rang);
+
+	if (!bSMin && bOld)
+		smin = old;
+
+	if (bOld)
+		printf("\nNumarul de conditionare al matricii A: %.4f\n", smax / smin);
+	else
+		printf("\nNumarul de conditionare al matricii A nu se poate afla!");
+}
+
 int main() {
 
 	//testNaiveMatrix();
+	//testSparseMatrix();
 
 	//Homework 2
-    //HW2(250);
+	//HW2(250);
 
 	//Homework 3
 	//HW3(10);
 
 	//Homework 4
-	HW4();
+	//HW4();
 
-//	testSparseMatrix();
+	//Homework 5
+	//HW5(8);
+
+	/*
+	std::vector<std::map<int, double>> *list1 = new std::vector<std::map<int, double>>();
+	list1->push_back({ {1, 1}, {2, 2} });
+	list1->push_back({ {3, 1}, {4, 2} });
+
+	std::vector<std::map<int, double>> *list2 = new std::vector<std::map<int, double>>(*list1);
+
+	list1->push_back({ {5, 1} });
+	list2->push_back({ {6, 1} });
+
+	for (auto it = list1->begin(); it != list1->end(); ++it) {
+		for (auto it2 = it->begin(); it2 != it->end(); ++it2) {
+			printf("%d %f\n", it2->first, it2->second);
+		}
+		printf("\n");
+	}
+
+	printf("\n\n");
+
+	for (auto it = list2->begin(); it != list2->end(); ++it) {
+		for (auto it2 = it->begin(); it2 != it->end(); ++it2) {
+			printf("%d %f\n", it2->first, it2->second);
+		}
+	}
+	*/
+
+	//Homework 6
+	//HW6(3);
+	HW6_SVD(11, 10);
 
 	return 0;
 }

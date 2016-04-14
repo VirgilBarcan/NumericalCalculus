@@ -218,7 +218,7 @@ Matrix *MatrixNaive::subtract(Matrix *matrix1, Matrix *matrix2) {
 		for (int line = 0; line < matrix1->getNoOfLines(); ++line) {
 			for (int column = 0; column < matrix1->getNoOfColumns(); ++column) {
 				difference->setElementAt(line, column,
-								  matrix1->getElementAt(line, column) - matrix2->getElementAt(line, column));
+										 matrix1->getElementAt(line, column) - matrix2->getElementAt(line, column));
 			}
 		}
 
@@ -235,24 +235,24 @@ Matrix *MatrixNaive::multiply(Matrix *matrix)
 Matrix *MatrixNaive::multiply(Matrix *matrix1, Matrix *matrix2)
 {
 	if (checkMultipliable(matrix1, matrix2)) {
-        MatrixNaive *productMatrix = new MatrixNaive(matrix1->getNoOfLines(), matrix2->getNoOfColumns());
-        
+		MatrixNaive *productMatrix = new MatrixNaive(matrix1->getNoOfLines(), matrix2->getNoOfColumns());
+
 		int line1, column1, column2;
 		double sum = 0;
 
-        for (line1 = 0; line1 < matrix1->getNoOfLines(); ++line1) {
-            for (column2 = 0; column2 < matrix2->getNoOfColumns(); ++column2) {
-                for (column1 = 0; column1 < matrix1->getNoOfColumns(); ++column1) {
+		for (line1 = 0; line1 < matrix1->getNoOfLines(); ++line1) {
+			for (column2 = 0; column2 < matrix2->getNoOfColumns(); ++column2) {
+				for (column1 = 0; column1 < matrix1->getNoOfColumns(); ++column1) {
 					double product = matrix1->getElementAt(line1, column1) * matrix2->getElementAt(column1, column2);
 					sum += product;
-                }
+				}
 				productMatrix->setElementAt(line1, column2, sum);
 				sum = 0.0;
-            }
-        }
+			}
+		}
 
 		return productMatrix;
-    }
+	}
 	return nullptr;
 }
 
@@ -565,4 +565,95 @@ bool MatrixNaive::equals(Matrix *M) {
 bool MatrixNaive::equals(Matrix *A, Matrix *M) {
 	//TODO: Implement function
 	return 0;
+}
+
+bool MatrixNaive::isDiagonalZero() {
+	return isDiagonalZero(this);
+}
+
+bool MatrixNaive::isDiagonalZero(Matrix *A) {
+	//check the matrix is square
+	if (A->getNoOfLines() != A->getNoOfColumns())
+		return true; //we return like that, even though an exception will be better
+
+	for (int i = 0; i < A->getNoOfLines(); ++i) {
+		if (fabs(A->getElementAt(i, i)) < epsilon) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+Matrix *MatrixNaive::strictSuperiorPart() {
+	return strictSuperiorPart(this);
+}
+
+Matrix *MatrixNaive::strictSuperiorPart(Matrix *A) {
+	if (!A->isDiagonalZero()) {
+		MatrixNaive *x = new MatrixNaive(A->getNoOfLines(), 1);
+
+		for (int line = 0; line < A->getNoOfLines(); ++line) {
+			for (int column = line + 1; column < A->getNoOfColumns(); ++column) {
+				x->setElementAt(line, column, A->getElementAt(line, column));
+			}
+		}
+
+		return x;
+	}
+	else {
+		printf("We can't return the superior triangular elements of a non-square matrix!\n");
+		return nullptr;
+	}
+}
+
+Matrix *MatrixNaive::diagonal() {
+	return diagonal(this);
+}
+
+Matrix *MatrixNaive::diagonal(Matrix *A) {
+	if (!A->isDiagonalZero()) {
+		MatrixNaive *x = new MatrixNaive(A->getNoOfLines(), 1);
+
+		for (int i = 0; i < A->getNoOfLines(); ++i) {
+			x->setElementAt(i, i, A->getElementAt(i, i));
+		}
+
+		return x;
+	}
+	else {
+		printf("We can't return the diagonal elements of a non-square matrix!\n");
+		return nullptr;
+	}
+}
+
+Matrix *MatrixNaive::strictInferiorPart() {
+	return strictInferiorPart(this);
+}
+
+Matrix *MatrixNaive::strictInferiorPart(Matrix *A) {
+	if (!A->isDiagonalZero()) {
+		MatrixNaive *x = new MatrixNaive(A->getNoOfLines(), 1);
+
+		for (int line = 0; line < A->getNoOfLines(); ++line) {
+			for (int column = 0; column < line; ++column) {
+				x->setElementAt(line, column, A->getElementAt(line, column));
+			}
+		}
+
+		return x;
+	}
+	else {
+		printf("We can't return the inferior triangular elements of a non-square matrix!\n");
+		return nullptr;
+	}
+}
+
+bool MatrixNaive::isSymmetric() {
+	return false;
+}
+
+bool MatrixNaive::isSymmetric(Matrix *A) {
+	return false;
 }
