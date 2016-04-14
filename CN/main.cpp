@@ -270,6 +270,10 @@ void HW3(int n) {
 	//random matrix
 	A->generateRandomMatrixValues(-100, 100);
 
+	/*for (int i = 0; i < n; ++i)
+		A->setElementAt(0, i, 3.0),
+		A->setElementAt(1, i, 6.0);*/
+
 	printf("A:\n%s\n", A->toString().c_str());
 
 	inverse = reinterpret_cast<MatrixNaive*>(A->inverse());
@@ -302,18 +306,18 @@ void HW4() {
 	MatrixSparse *AplusBx;
 	MatrixSparse *AoriBx;
 
-	A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/a_mat.txt");
-	b_A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/a_vect.txt");
+	A->getFromFile("C:\\Users\\MoroJr\\Source\\Repos\\NumericalCalculus\\HW4Files/a_mat.txt");
+	b_A->getFromFile("C:\\Users\\MoroJr\\Source\\Repos\\NumericalCalculus\\HW4Files/a_vect.txt");
 
-	B_line->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/b_mat.txt");
-	B_column->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/b_mat.txt");
-	b_B->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/b_vect.txt");
+	B_line->getFromFile("C:\\Users\\MoroJr\\Source\\Repos\\NumericalCalculus\\HW4Files/b_mat.txt");
+	B_column->getFromFile("C:\\Users\\MoroJr\\Source\\Repos\\NumericalCalculus\\HW4Files/b_mat.txt");
+	b_B->getFromFile("C:\\Users\\MoroJr\\Source\\Repos\\NumericalCalculus\\HW4Files/b_vect.txt");
 
-	AplusB->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/aplusb_mat.txt");
-	b_AplusB->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/aplusb_vect.txt");
+	AplusB->getFromFile("C:\\Users\\MoroJr\\Source\\Repos\\NumericalCalculus\\HW4Files/aplusb_mat.txt");
+	b_AplusB->getFromFile("C:\\Users\\MoroJr\\Source\\Repos\\NumericalCalculus\\HW4Files/aplusb_vect.txt");
 
-	AoriB->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/aorib_mat.txt");
-	b_AoriB->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/4/aorib_vect.txt");
+	AoriB->getFromFile("C:\\Users\\MoroJr\\Source\\Repos\\NumericalCalculus\\HW4Files/aorib_mat.txt");
+	b_AoriB->getFromFile("C:\\Users\\MoroJr\\Source\\Repos\\NumericalCalculus\\HW4Files/aorib_vect.txt");
 
 //	printf("A[0, 0]: %f\n", A->getElementAt(0, 0));
 //	printf("B_c[0, 0]: %f\n", B_column->getElementAt(0, 0));
@@ -378,7 +382,7 @@ int main() {
     //HW2(250);
 
 	//Homework 3
-	//HW3(50);
+	//HW3(10);
 
 	//Homework 4
 	HW4();

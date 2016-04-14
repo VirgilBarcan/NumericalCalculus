@@ -44,10 +44,10 @@ void MatrixNaive::setElementAt(int line, int column, double value)
 	if (checkBounds(line, column)) {
 		matrix[line][column] = value;
 	}
-	else {
-		//maybe throw an exception
+	/*else {
+		maybe throw an exception
 		printf("setElementAt: (line, column) pair not in bounds: (%d, %d) != (%d, %d)\n", line, column, this->noOfLines, this->noOfColumns);
-	}
+	}*/
 }
 
 double MatrixNaive::getElementAt(int line, int column)
@@ -57,7 +57,7 @@ double MatrixNaive::getElementAt(int line, int column)
 	}
 	else {
 		//maybe throw an exception
-		printf("getElementAt: (line, column) pair not in bounds: (%d, %d) != (%d, %d)\n", line, column, this->noOfLines, this->noOfColumns);
+		/*printf("getElementAt: (line, column) pair not in bounds: (%d, %d) != (%d, %d)\n", line, column, this->noOfLines, this->noOfColumns);*/
 		return 0.0;
 	}
 }
@@ -508,7 +508,7 @@ bool MatrixNaive::gaussEliminationMethod(Matrix *A, Matrix *b, Matrix *R, Matrix
 		//printf("b: \n%s\n", b->toString().c_str());
 	}
 
-	if (fabs(extendedA->getElementAt(l, l)) < epsilon) {
+	if (fabs(extendedA->getElementAt(l, l)) < 1e-10f) { // epsilon
 		//singular matrix
 		R = nullptr;
 		B = nullptr;
