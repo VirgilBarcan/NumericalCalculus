@@ -110,7 +110,7 @@ MatrixNaive *calculateB(MatrixNaive *s, MatrixNaive *A, int n) {
 
 	return b;
 }
-
+*/
 MatrixNaive *copyFromArmadilloMatToMatrix(arma::mat A) {
 	MatrixNaive *M = new MatrixNaive(A.n_rows, A.n_cols);
 
@@ -122,7 +122,7 @@ MatrixNaive *copyFromArmadilloMatToMatrix(arma::mat A) {
 
 	return M;
 }
-
+/*
 MatrixNaive *copyFromArmadilloVecToMatrix(arma::vec A) {
 	MatrixNaive *M = new MatrixNaive(A.n_rows, 1);
 
@@ -190,15 +190,15 @@ void HW2(int n) {
 	b = calculateB(s, A, n);
 	//printf("b:\n%s\n", b->toString().c_str());
 
-	begin = clock();
+	// begin = clock();
 	//calculate the QR decomposition of A using our implementation
 	A->qrDecomposition(b->clone(), reinterpret_cast<Matrix**>(&Q), reinterpret_cast<Matrix**>(&R));
 	//printf("Q:\n%s\n", Q->toString().c_str());
 	//printf("R:\n%s\n", R->toString().c_str());
-	end = clock();
+	// end = clock();
 	elapsed_time_qr_our = double(end - begin) / CLOCKS_PER_SEC;
 
-	begin = clock();
+	// begin = clock();
 	//calculate the solution of Ax = b with our implementation
 	void *ptr = R->inverseSubstitutionMethod(Q->transpose()->multiply(b));
 	if (!ptr)
@@ -207,20 +207,20 @@ void HW2(int n) {
 	xHouseholder = reinterpret_cast<MatrixNaive*>(ptr);
 
 	//printf("xHousehoulder:\n%s\n", xHouseholder->toString().c_str());
-	end = clock();
+	// end = clock();
 	elapsed_time_solve_our = double(end - begin) / CLOCKS_PER_SEC;
 
-	begin = clock();
+	// begin = clock();
 	//calculate the QR decomposition of A using Armadillo
 	arma::qr(Q2, R2, A2);
-	end = clock();
+	// end = clock();
 	elapsed_time_qr_arma = double(end - begin) / CLOCKS_PER_SEC;
 
 	//calculate the solution of Ax = b with Armadillo
 	b2 = copyFromMatrixToArmadilloVec(b);
-	begin = clock();
+	// begin = clock();
 	xQR = arma::solve(A2, b2);
-	end = clock();
+	// end = clock();
 	elapsed_time_solve_arma = double(end - begin) / CLOCKS_PER_SEC;
 
 	//xQR.print("xQR:");
@@ -336,11 +336,11 @@ void HW4() {
 //	printf("S[0, 186]: %f\n", S->getElementAt(0, 186));
 //	printf("S[5, 6]: %f\n", S->getElementAt(5, 6));
 
-	double begin = clock();
+	double // begin = clock();
 	//Calculate P = A * B
 	P = reinterpret_cast<MatrixSparse*>(A->multiply(B_column)); P->setEpsilon(epsilon);
 	//printf("A*B:\n%s\n", P->toString().c_str());
-	double end = clock();
+	double // end = clock();
 	double elapsed_time = double(end - begin) / CLOCKS_PER_SEC;
 	printf("Multiplication took: %f seconds\n", elapsed_time);
 
@@ -431,12 +431,12 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 
 	clock_t begin, end;
 
-	begin = clock();
+	// begin = clock();
 	//pick v randomly, but with ||v|| = 1
 	MatrixSparse *v = new MatrixSparse(A->getNoOfLines(), 1); v->setStoreType(COLUMN);
 	v->generateRandomMatrixValues(0.1, 1);
 //	v->setElementAt(0, 0, 1); v->setElementAt(1, 0, 0); v->setElementAt(2, 0, 0);
-	end = clock();
+	// end = clock();
 //	printf("generate took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 
 	double norm = VectorialNorm::EuclideanNorm(v);
@@ -447,10 +447,10 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 
 	//printf("v:\n%s\n", v->toString().c_str());
 
-	begin = clock();
+	// begin = clock();
 	MatrixSparse *w = new MatrixSparse(A->getNoOfLines(), 1); w->setStoreType(COLUMN);
 	w = reinterpret_cast<MatrixSparse*>(A->multiply(v));
-	end = clock();
+	// end = clock();
 //	printf("w = A * v took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 	//printf("w:\n%s\n", w->toString().c_str());
 
@@ -462,30 +462,30 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 	k = 0;
 
 	do {
-		printf("======= %d %f\n", k, norm);
+		fprintf(stderr, "======= %d %f\n", k, norm);
 		//lambdaV = v(k)
-		begin = clock();
+		// // begin = clock();
 		lambdaV = reinterpret_cast<MatrixSparse*>(v->clone());
-		end = clock();
+		// end = clock();
 //		printf("clone took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 
 		//printf("v(k):\n%s\n", lambdaV->toString().c_str());
 
-		begin = clock();
+		// begin = clock();
 		//v(k+1) = w/norm(w)
 		norm = VectorialNorm::EuclideanNorm(w);
 		for (int line = 0; line < v->getNoOfLines(); ++line) {
 			v->setElementAt(line, 0, w->getElementAt(line, 0) / norm);
 		}
-		end = clock();
+		// end = clock();
 //		printf("Euclidean Norm took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 
 		//printf("v(k+1):\n%s\n", v->toString().c_str());
 
 		//w = A * v(k+1)
-		begin = clock();
+		// begin = clock();
 		w = reinterpret_cast<MatrixSparse*>(A->multiply(v));
-		end = clock();
+		// end = clock();
 //		printf("w = A * v took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 
 		//printf("w:\n%s\n", w->toString().c_str());
@@ -503,9 +503,9 @@ bool powerMethod(Matrix *A, double &eigenvalue, Matrix **eigenvector) {
 			lambdaV->setElementAt(line, 0, lambdaV->getElementAt(line, 0) * lambdaK);
 		}
 
-		begin = clock();
+		// begin = clock();
 		norm = VectorialNorm::EuclideanNorm(w->subtract(lambdaV));
-		end = clock();
+		// end = clock();
 //		printf("Euclidean Norm took: %d\n", (end - begin) / CLOCKS_PER_SEC);
 
 		lambdaK = lambdaKPlusOne;
@@ -564,11 +564,6 @@ void HW6(int p) {
 	MatrixSparse *A = new MatrixSparse(); A->setStoreType(LINE); A->setEpsilon(epsilon);
 	MatrixSparse *B;
 
-	//A->setElementAt(0, 0, 1); A->setElementAt(0, 1, 2); A->setElementAt(0, 2, 3);
-	//A->setElementAt(1, 0, 2); A->setElementAt(1, 1, 1); A->setElementAt(1, 2, 3);
-	//A->setElementAt(2, 0, 3); A->setElementAt(2, 1, 3); A->setElementAt(2, 2, 1);
-
-	//A->getFromFile("/home/virgil/Facultate/An3/Sem2/CN/Laborator/6/mat_2016.txt");
 	A->getFromFile("m_rar_sim_2016.txt");	
 	printf("Is A symmetric? %s\n", A->isSymmetric() ? "yes" : "no");
 
@@ -577,18 +572,26 @@ void HW6(int p) {
 
 	double eigenvalue;
 	MatrixSparse *eigenvector = new MatrixSparse(A->getNoOfLines(), 1); eigenvector->setStoreType(COLUMN);
-//	powerMethod(A, eigenvalue, reinterpret_cast<Matrix**>(&eigenvector));
-//
-//	printf("Eigenvalue: %f\n\n", eigenvalue);
-//	printf("Eigenvector:\n%s\n", eigenvector->toString().c_str());
-//
-//	printf("A*u:\n%s\n", A->multiply(eigenvector)->toString().c_str());
+	powerMethod(A, eigenvalue, reinterpret_cast<Matrix**>(&eigenvector));
+
+	FILE *f = fopen("eigenvector.txt", "w");
+	fprintf(f, "Eigenvalue: %f\n\n", eigenvalue);
+	
+	printf("Eigenvalue: %f\n\n", eigenvalue);
+
+	fprintf(f, "Eigenvector:\n%s\n", eigenvector->toString().c_str());
+	// printf("Eigenvector:\n%s\n", eigenvector->toString().c_str());
+
+	fprintf(f, "A*u:\n%s\n", A->multiply(eigenvector)->toString().c_str());
+	//printf("A*u:\n%s\n", A->multiply(eigenvector)->toString().c_str());
+
+	fclose(f);
 
 	delete A;
 	delete eigenvector;
 }
 
-void HW6_SVD(int p, int n) {
+void HW6_SVD(int p, int n, int _s) {
 	double epsilon = pow(10, -8);
 
 	if (p <= n) {
@@ -607,8 +610,8 @@ void HW6_SVD(int p, int n) {
 
 	arma::svd(U, s, V, A);
 
-	bool bSMax = false, bSMin = false, bOld = false;
-	double smax, smin, old;
+	bool bSMax = false, bSMin = false;
+	double smax, smin;
 
 	size_t rang = 0;
 	printf("Valorile singulare ale matricii A: ");
@@ -617,33 +620,58 @@ void HW6_SVD(int p, int n) {
 
 		if (fabs(s.at(i) - 1.0f) > epsilon)
 		{
-			old = s.at(i);
-			bOld = true;
-
 			if (!bSMax) {
 				bSMax = true;
 				smax = s.at(i);
 			}
 
+			smin = s.at(i);
+			bSMin = true;
+
 			++rang;
-		}
-		else {
-			if (!bSMin) {			
-				bSMin = true;
-				smin = old;
-			}
 		}
 	}
 
 	printf("\nRangul matricii A: %d", rang);
 
-	if (!bSMin && bOld)
-		smin = old;
-
-	if (bOld)
+	if (bSMin)
 		printf("\nNumarul de conditionare al matricii A: %.4f\n", smax / smin);
 	else
 		printf("\nNumarul de conditionare al matricii A nu se poate afla!");
+
+	arma::mat S(p, n);
+	S.zeros();
+	for (int i = 0; i < n; ++i)
+		S(i, i) = s[i];
+
+	arma::mat prod = U * S * V.t();
+	arma::mat diff = A - prod;
+	cout << diff << endl;
+
+	MatrixNaive *diffNaive = copyFromArmadilloMatToMatrix(diff);
+
+	double maxNorm = MatrixNorm::MaximumNorm(diffNaive);
+
+	printf("\n||A - USV^T||%c: %.16f\n", char(236), maxNorm);
+
+	
+	arma::mat As(p, n);
+	As.zeros();
+	for (int i = 0; i < _s; ++i) {
+		arma::vec ui = U.col(i);
+		arma::vec vi = V.col(i);
+
+		As = As + s[i] * ui * vi.t();
+	}
+
+	cout << endl << As << endl;
+	
+
+	arma::mat diff2 = A - As;
+	MatrixNaive *diffNaive2 = copyFromArmadilloMatToMatrix(diff2);
+	double maxNorm2 = MatrixNorm::MaximumNorm(diffNaive2);
+
+	printf("\||A - As||%c: %.16f\n", char(236), maxNorm2);
 }
 
 int main() {
@@ -691,7 +719,9 @@ int main() {
 
 	//Homework 6
 	//HW6(3);
-	HW6_SVD(11, 10);
+
+	int s = 5;
+	HW6_SVD(11, 10, s);
 
 	return 0;
 }

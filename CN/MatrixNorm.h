@@ -79,5 +79,28 @@ public:
 
 		return norm;
 	}
+
+	static double MaximumNorm(Matrix *x) {
+		double norm = 0.0, sum;
+
+		//check that we got a vector and not a matrix
+		if (x == nullptr) {
+			norm = -1;
+		}
+		else {
+			//calculate the norm
+			for (int i = 0; i < x->getNoOfLines(); ++i) {
+				sum = 0.0;
+				for (int j = 0; j < x->getNoOfColumns(); ++j) {
+					sum += fabs(x->getElementAt(i, j));					
+				}
+
+				if (sum > norm)
+					norm = sum;
+			}
+		}
+
+		return norm;
+	}
 };
 
