@@ -1,7 +1,7 @@
-#pragma once
+# pragma once
 
-#include <string>
-#include <random>
+# include <string>
+# include <random>
 
 class Matrix
 {

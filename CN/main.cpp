@@ -4,6 +4,7 @@
 # include "MatrixSparse.h"
 # include "VectorialNorm.h"
 # include "MatrixNorm.h"
+# include "Polynomial.h"
 # include <armadillo>
 
 using namespace std;
@@ -671,7 +672,11 @@ void HW6_SVD(int p, int n, int _s) {
 	MatrixNaive *diffNaive2 = copyFromArmadilloMatToMatrix(diff2);
 	double maxNorm2 = MatrixNorm::MaximumNorm(diffNaive2);
 
-	printf("\||A - As||%c: %.16f\n", char(236), maxNorm2);
+	printf("||A - As||%c: %.16f\n", char(236), maxNorm2);
+}
+
+void HW7() {
+
 }
 
 int main() {

@@ -2,8 +2,8 @@
 // Created by virgil on 21.03.2016.
 //
 
-#include "MatrixSparse.h"
-#include "MatrixNorm.h"
+# include "MatrixSparse.h"
+# include "MatrixNorm.h"
 
 MatrixSparse::MatrixSparse()
 {
@@ -317,7 +317,7 @@ Matrix *MatrixSparse::multiply(Matrix *matrix1, Matrix *matrix2)
                 for (column2 = 0; column2 < matrix2->getNoOfColumns(); ++column2) {
                     for (auto p : aux) {
                         //printf("%d %d %d\n", line1, column2, p.first);
-                        double product = matrix1->getElementAt(line1, p.first) * matrix2->getElementAt(p.first, column2);
+                        double product = p.second * matrix2->getElementAt(p.first, column2);
                         sum += product;
                     }
                     productMatrix->setElementAt(line1, column2, sum);

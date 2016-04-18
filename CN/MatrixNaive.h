@@ -1,6 +1,6 @@
-#pragma once
+# pragma once
 
-#include "Matrix.h"
+# include "Matrix.h"
 
 class MatrixNaive : public Matrix
 {

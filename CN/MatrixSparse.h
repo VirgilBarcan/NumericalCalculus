@@ -2,8 +2,7 @@
 // Created by virgil on 21.03.2016.
 //
 
-#ifndef NUMERICALCALCULUS_MATRIXSPARSE_H
-#define NUMERICALCALCULUS_MATRIXSPARSE_H
+# pragma once
 
 # include "Matrix.h"
 # include <fstream>
@@ -105,5 +104,3 @@ private:
 
 };
 
-
-#endif //NUMERICALCALCULUS_MATRIXSPARSE_H
