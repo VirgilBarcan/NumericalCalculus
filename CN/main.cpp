@@ -5,7 +5,13 @@
 # include "VectorialNorm.h"
 # include "MatrixNorm.h"
 # include "Polynomial.h"
-# include <armadillo>
+
+# include "Function.h"
+# include "ConstantFunction.h"
+# include "PowerFunction.h"
+# include "CompositeFunction.h"
+
+//# include <armadillo>
 
 using namespace std;
 
@@ -111,7 +117,7 @@ MatrixNaive *calculateB(MatrixNaive *s, MatrixNaive *A, int n) {
 
 	return b;
 }
-*/
+
 MatrixNaive *copyFromArmadilloMatToMatrix(arma::mat A) {
 	MatrixNaive *M = new MatrixNaive(A.n_rows, A.n_cols);
 
@@ -123,7 +129,7 @@ MatrixNaive *copyFromArmadilloMatToMatrix(arma::mat A) {
 
 	return M;
 }
-/*
+
 MatrixNaive *copyFromArmadilloVecToMatrix(arma::vec A) {
 	MatrixNaive *M = new MatrixNaive(A.n_rows, 1);
 
@@ -410,7 +416,7 @@ void HW5(int p) {
 }
 */
 
-
+/*
 //A and B should be vectors with the same size
 double scalarProduct(Matrix *A, Matrix *B) {
 	double result = 0.0;
@@ -674,9 +680,34 @@ void HW6_SVD(int p, int n, int _s) {
 
 	printf("||A - As||%c: %.16f\n", char(236), maxNorm2);
 }
+*/
 
 void HW7() {
+	double x = 5;
+	Function *c = new ConstantFunction(3);
+	printf("c(x) = 3; c(%f) = %f\n", x, c->evaluate(x));
 
+	Function *p = new PowerFunction(3);
+	printf("p(x) = x ^ 3; p(%f) = %f\n", x, p->evaluate(x));
+
+	CompositeFunction *f = new CompositeFunction();
+	f->addFunction(c);
+	f->addFunction(p);
+	printf("f(x) = 3 + x ^ 3; f(%f) = %f\n", x, f->evaluate(x));
+
+	Function *cf1 = (*c) + (*c);
+	printf("f(x) = c(x) + c(x); f(%f) = %f\n", x, cf1->evaluate(x));
+
+	double val = 3;
+	Function *cf2 = (*c) * val;
+	printf("f(x) = c(x) * 3; f(%f) = %f\n", x, cf2->evaluate(x));
+
+
+	delete c;
+	delete p;
+	delete f;
+	delete cf1;
+	delete cf2;
 }
 
 int main() {
@@ -725,8 +756,10 @@ int main() {
 	//Homework 6
 	//HW6(3);
 
-	int s = 5;
-	HW6_SVD(11, 10, s);
+	//int s = 5;
+	//HW6_SVD(11, 10, s);
+
+	HW7();
 
 	return 0;
 }

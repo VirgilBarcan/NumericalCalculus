@@ -41,7 +41,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -149,12 +149,19 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MatrixNaive.cpp" />
     <ClCompile Include="MatrixSparse.cpp" />
+    <ClCompile Include="Polynomial.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CompositeFunction.h" />
+    <ClInclude Include="ConstantFunction.h" />
+    <ClInclude Include="Function.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="MatrixNaive.h" />
     <ClInclude Include="MatrixNorm.h" />
     <ClInclude Include="MatrixSparse.h" />
+    <ClInclude Include="Polynomial.h" />
+    <ClInclude Include="PowerFunction.h" />
+    <ClInclude Include="SimpleFunction.h" />
     <ClInclude Include="VectorialNorm.h" />
   </ItemGroup>
   <ItemGroup>
