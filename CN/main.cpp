@@ -805,6 +805,116 @@ void MullerMethod(Function *f, double R, int no_of_roots_searched) {
 	printRoots(roots);
 }
 
+double h = pow(10, -5);
+double g(Function *f, double x) {
+	return (-f->evaluate(x + 2 * h) + 8 * f->evaluate(x + h) - 8 * f->evaluate(x - h) + f->evaluate(x - 2 * h)) / (12 * h);
+}
+
+void secantMethod(Function *f, double R) {
+	bool ok = false;
+	int k_max = 100;
+
+	double root = 0.0;
+
+	srand(time(0));
+
+	do {
+		int v = ((R - (-R)) + 1);
+		double x0 = -R + rand() % v;
+		double x = -R + rand() % v;
+
+		printf("\nx0 = %.8f\n", x0);
+		printf("x = %.8f\n", x);
+
+		double nominator;
+		double delta_x = 0;
+
+		int k = 2;
+
+		do {
+			printf("\n========= k = %d =========\n", k);
+
+			nominator = g(f, x) - g(f, x0);
+			printf("\nnominator = %.8f\n", nominator);
+			if (nominator > -epsilon && nominator < epsilon) {
+				delta_x = pow(10, -5);
+			}
+			else {
+				delta_x = ((x - x0) * g(f, x)) / nominator;
+			}
+
+			printf("\ndelta_x = %.8f\n", delta_x);
+
+			x = x - delta_x;
+			printf("\nx = %.8f\n", x);
+
+			++k;
+
+		} while (fabs(delta_x) >= epsilon && k <= k_max && fabs(delta_x) <= pow(10, 8));
+
+		if (ok && fabs(delta_x) < epsilon) {
+			//convergence
+			root = x;
+			ok = true;
+		}
+		else {
+			//divergence
+			ok = false;
+		}
+	} while (!ok);
+
+	printf("\nroot = %.8f\n", root);
+}
+
+void testMullerMethod() {
+	double coefficients[] = { -6, 11, -6, 1 };
+
+	Function *x3 = new PowerFunction(coefficients[3], 3);
+	Function *x2 = new PowerFunction(coefficients[2], 2);
+	Function *x1 = new PowerFunction(coefficients[1], 1);
+	Function *x0 = new ConstantFunction(coefficients[0]);
+
+	Function *f = (*x0) + (*x1);
+	f = (*f) + (*x2);
+	f = (*f) + (*x3);
+
+	double max = 0;
+	for (double i : coefficients) {
+		if (fabs(i) > max) {
+			max = fabs(i);
+		}
+	}
+
+	double R = fabs(coefficients[3] + max) / fabs(coefficients[3]);
+
+	MullerMethod(f, R, 3);
+
+	delete f;
+	delete x3;
+	delete x2;
+	delete x1;
+	delete x0;
+}
+
+void testSecantMethod() {
+	double coefficients[] = { 3, -4, 1 };
+	Function *x2 = new PowerFunction(1, 2);
+	Function *x1 = new PowerFunction(-4, 1);
+	Function *x0 = new ConstantFunction(3);
+
+	Function *f = (*x0) + (*x1);
+	f = (*f) + (*x2);
+
+	double R = 5;
+
+	secantMethod(f, R);
+
+	delete f;
+	delete x2;
+	delete x1;
+	delete x0;
+}
+
 void HW7() {
 	/*
 	//Test Function
@@ -834,27 +944,9 @@ void HW7() {
 	delete cf2;
 	*/
 
-	double coefficients[] = { -6, 11, -6, 1 };
+	//testMullerMethod();
 
-	Function *x3 = new PowerFunction(coefficients[3], 3);
-	Function *x2 = new PowerFunction(coefficients[2], 2);
-	Function *x1 = new PowerFunction(coefficients[1], 1);
-	Function *x0 = new ConstantFunction(coefficients[0]);
-
-	Function *f = (*x0) + (*x1);
-	f = (*f) + (*x2);
-	f = (*f) + (*x3);
-
-	double max = 0;
-	for (double i : coefficients) {
-		if (fabs(i) > max) {
-			max = fabs(i);
-		}
-	}
-
-	double R = fabs(coefficients[3] + max) / fabs(coefficients[3]);
-
-	MullerMethod(f, R, 3);
+	testSecantMethod();
 }
 
 int main() {
