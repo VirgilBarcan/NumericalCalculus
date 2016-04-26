@@ -682,7 +682,132 @@ void HW6_SVD(int p, int n, int _s) {
 }
 */
 
+double epsilon = pow(10, -3);
+
+void printRoots(std::vector<double> &roots) {
+	for (auto it = roots.begin(); it != roots.end(); ++it) {
+		printf("%.8f ", (*it));
+	}
+}
+
+bool alreadyFound(std::vector<double> &roots, double root) {
+	for (auto it = roots.begin(); it != roots.end(); ++it) {
+		if (fabs((*it) - root) <= epsilon)
+			return true;
+	}
+	return false;
+}
+
+void MullerMethod(Function *f, double R, int no_of_roots_searched) {
+	bool ok = false;
+	int k_max = 100;
+
+	std::vector<double> roots;
+
+	srand(time(0));
+
+	do {
+		int v = ((R - (-R)) + 1);
+		double x0 = -R + rand() % v;
+		double x1 = -R + rand() % v;
+		double x2 = -R + rand() % v;
+		double x3 = x2;
+
+		printf("\nx0 = %.8f\n", x0);
+		printf("x1 = %.8f\n", x1);
+		printf("x2 = %.8f\n", x2);
+
+		double h0, h1;
+		double delta0, delta1;
+		double a, b, c;
+		double delta_x = 0.0;
+		double max;
+		double delta;
+
+		int k = 2;
+
+		do {
+			printf("\n========= k = %d =========\n", k);
+
+			h0 = x1 - x0;
+			h1 = x2 - x1;
+			printf("\nh0 = %.8f\n", h0);
+			printf("h1 = %.8f\n", h1);
+
+			delta0 = (f->evaluate(x1) - f->evaluate(x0)) / h0;
+			delta1 = (f->evaluate(x2) - f->evaluate(x1)) / h1;
+			printf("\ndelta0 = %.8f\n", delta0);
+			printf("delta1 = %.8f\n", delta1);
+
+			a = (delta1 - delta0) / (h1 + h0);
+			b = a * h1 + delta1;
+			c = f->evaluate(x2);
+			printf("\na = %.8f\n", a);
+			printf("b = %.8f\n", b);
+			printf("c = %.8f\n", c);
+
+			delta = b * b - 4 * a * c;
+			printf("\ndelta = %.8f\n", delta);
+			if (delta < 0) {
+				ok = false;
+				break;
+			}
+
+			max = fmax(b + sqrt(delta), b - sqrt(delta));
+			printf("\nmax = %.8f\n", max);
+			if (fabs(max) < epsilon) {
+				ok = false;
+				break;
+			}
+
+			ok = true;
+			delta_x = (2 * c) / max;
+			printf("\ndelta_x = %.8f\n", delta_x);
+
+			x3 = x2 - delta_x;
+
+			x0 = x1;
+			x1 = x2;
+			x2 = x3;
+			printf("\nx0 = %.8f\n", x0);
+			printf("x1 = %.8f\n", x1);
+			printf("x2 = %.8f\n", x2);
+
+			++k;
+
+		} while (fabs(delta_x) >= epsilon && k <= k_max && fabs(delta_x) <= pow(10, 8));
+
+		if (ok && fabs(delta_x) < epsilon) {
+			//convergence
+
+			//check that this root has not been found already
+			if (!alreadyFound(roots, x3)) {
+				roots.push_back(x3);
+
+				if (roots.size() == no_of_roots_searched) {
+					ok = true;
+				}
+				else {
+					ok = false;
+				}
+			}
+			else {
+				ok = false;
+			}
+		}
+		else {
+			//divergence
+			ok = false;
+		}
+
+	} while (!ok);
+
+	printRoots(roots);
+}
+
 void HW7() {
+	/*
+	//Test Function
 	double x = 5;
 	Function *c = new ConstantFunction(3);
 	printf("c(x) = 3; c(%f) = %f\n", x, c->evaluate(x));
@@ -701,13 +826,35 @@ void HW7() {
 	double val = 3;
 	Function *cf2 = (*c) * val;
 	printf("f(x) = c(x) * 3; f(%f) = %f\n", x, cf2->evaluate(x));
-
-
+	
 	delete c;
 	delete p;
 	delete f;
 	delete cf1;
 	delete cf2;
+	*/
+
+	double coefficients[] = { -6, 11, -6, 1 };
+
+	Function *x3 = new PowerFunction(coefficients[3], 3);
+	Function *x2 = new PowerFunction(coefficients[2], 2);
+	Function *x1 = new PowerFunction(coefficients[1], 1);
+	Function *x0 = new ConstantFunction(coefficients[0]);
+
+	Function *f = (*x0) + (*x1);
+	f = (*f) + (*x2);
+	f = (*f) + (*x3);
+
+	double max = 0;
+	for (double i : coefficients) {
+		if (fabs(i) > max) {
+			max = fabs(i);
+		}
+	}
+
+	double R = fabs(coefficients[3] + max) / fabs(coefficients[3]);
+
+	MullerMethod(f, R, 3);
 }
 
 int main() {
