@@ -10,6 +10,7 @@
 # include "ConstantFunction.h"
 # include "PowerFunction.h"
 # include "CompositeFunction.h"
+# include "ExponentialFunction.h"
 
 //# include <armadillo>
 
@@ -682,12 +683,13 @@ void HW6_SVD(int p, int n, int _s) {
 }
 */
 
-double epsilon = pow(10, -3);
+double epsilon = pow(10, -10);
 
 void printRoots(std::vector<double> &roots) {
 	for (auto it = roots.begin(); it != roots.end(); ++it) {
 		printf("%.8f ", (*it));
 	}
+	printf("\n");
 }
 
 bool alreadyFound(std::vector<double> &roots, double root) {
@@ -843,7 +845,10 @@ void secantMethod(Function *f, double R) {
 				delta_x = ((x - x0) * g(f, x)) / nominator;
 			}
 
+			ok = true;
+
 			printf("\ndelta_x = %.8f\n", delta_x);
+			printf("\nepsilon = %.8f\n", epsilon);
 
 			x = x - delta_x;
 			printf("\nx = %.8f\n", x);
@@ -867,8 +872,12 @@ void secantMethod(Function *f, double R) {
 }
 
 void testMullerMethod() {
-	double coefficients[] = { -6, 11, -6, 1 };
+	//double coefficients[] = { -6, 11, -6, 1 };
+	//double coefficients[] = { -6.0 / 42.0, 49.0 / 42.0, -42.0 / 42.0, -55.0 / 42.0, 42.0 / 42.0 };
+	//double coefficients[] = { 3.0 / 8.0, -22.0 / 8.0, 49.0 / 8.0, -38.0 / 42.0, 8.0 / 8.0 };
+	double coefficients[] = { 4, -12, 13, -12, 4 };
 
+	Function *x4 = new PowerFunction(coefficients[4], 4);
 	Function *x3 = new PowerFunction(coefficients[3], 3);
 	Function *x2 = new PowerFunction(coefficients[2], 2);
 	Function *x1 = new PowerFunction(coefficients[1], 1);
@@ -877,6 +886,7 @@ void testMullerMethod() {
 	Function *f = (*x0) + (*x1);
 	f = (*f) + (*x2);
 	f = (*f) + (*x3);
+	f = (*f) + (*x4);
 
 	double max = 0;
 	for (double i : coefficients) {
@@ -885,11 +895,12 @@ void testMullerMethod() {
 		}
 	}
 
-	double R = fabs(coefficients[3] + max) / fabs(coefficients[3]);
+	double R = fabs(coefficients[4] + max) / fabs(coefficients[4]);
 
-	MullerMethod(f, R, 3);
+	MullerMethod(f, R, 4);
 
 	delete f;
+	delete x4;
 	delete x3;
 	delete x2;
 	delete x1;
@@ -897,22 +908,20 @@ void testMullerMethod() {
 }
 
 void testSecantMethod() {
-	double coefficients[] = { 3, -4, 1 };
-	Function *x2 = new PowerFunction(1, 2);
-	Function *x1 = new PowerFunction(-4, 1);
-	Function *x0 = new ConstantFunction(3);
+	//double coefficients[] = { 3, -4, 1 };
+	double coefficients[] = { 1, 1 };
+	Function *x2 = new PowerFunction(coefficients[1], 2);
+	Function *ex = new ExponentialFunction(coefficients[0], 2.718281828459);
 
-	Function *f = (*x0) + (*x1);
-	f = (*f) + (*x2);
+	Function *f = (*ex) + (*x2);
 
-	double R = 5;
+	double R = 0.5;
 
 	secantMethod(f, R);
 
 	delete f;
 	delete x2;
-	delete x1;
-	delete x0;
+	delete ex;
 }
 
 void HW7() {
